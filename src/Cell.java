@@ -67,7 +67,7 @@ public class Cell {
         if (count_close != count_open){
             //error with the open ( and clos )
             return false;
-        }
+        } HHHHHH
 
         List<Integer> list = new ArrayList<>();
         int count = 0;
