@@ -15,92 +15,95 @@ public class Cell {
 
 
     public static boolean isForm(String text) {
-        // The formula must start with "="
+        // The formula must start with "=" to be valid
         if (text == null || text.isEmpty() || !text.startsWith("=")) {
-            return false; // Return false if the formula does not start with "="
+            return false; // Return false if the formula is null, empty, or doesn't start with "="
         }
 
-        // Remove "=" and trim whitespace
+        // Remove "=" and trim any extra spaces from the beginning or end
         String formula = text.substring(1).trim();
 
-        // Check if parentheses are balanced
+        // Check if the parentheses in the formula are balanced
         if (!areParenthesesBalanced(formula)) {
-            return false; // Return false if parentheses are not balanced
+            return false; // Return false if the parentheses are not balanced
         }
 
-        // Handle the formula recursively
+        // Try to analyze the formula recursively
         try {
-            return parseFormula(formula);
+            return parseFormula(formula); // Start the recursive parsing
         } catch (IllegalArgumentException e) {
             return false; // Return false if an invalid formula is encountered
         }
     }
 
     private static boolean parseFormula(String formula) {
-        formula = formula.trim();
+        formula = formula.trim(); // Remove extra spaces around the formula
 
-        // Base case: Check if it's a number
+        // Check if the formula is a simple number
         if (isNumber(formula)) {
-            return true; // It's a valid number
+            return true; // A valid number is a valid formula
         }
 
-        // Base case: Check if it's a cell reference
+        // Check if the formula is a valid cell reference (e.g., A1)
         if (isValidCell(formula)) {
-            return true; // It's a valid cell reference
+            return true; // A valid cell is a valid formula
         }
 
-        // Handle parentheses around the formula
+        // Handle cases where the formula is wrapped in parentheses
         if (formula.startsWith("(") && formula.endsWith(")")) {
-            // Check if parentheses are matching
+            // Ensure that the outer parentheses are matching
             if (isMatchingParenthesis(formula, 0, formula.length() - 1)) {
-                // Recursively check the content inside the parentheses
+                // Remove the outer parentheses and parse the inner content recursively
                 return parseFormula(formula.substring(1, formula.length() - 1));
             }
         }
 
-        // Find the lowest priority operator (outside parentheses)
+        // Look for the lowest priority operator outside parentheses (e.g., + or -)
         int operatorIndex = findLowestPriorityOperator(formula);
         if (operatorIndex != -1) {
-            // Split the formula into left and right parts
+            // Split the formula into left and right parts based on the operator
             String left = formula.substring(0, operatorIndex).trim();
             String right = formula.substring(operatorIndex + 1).trim();
-            return parseFormula(left) && parseFormula(right); // Check both parts recursively
+            // Recursively parse both parts
+            return parseFormula(left) && parseFormula(right);
         }
 
-        // Check for implicit multiplication (e.g., (1+2)(3+4))
+        // Handle implicit multiplication (e.g., (1+2)(3+4))
         int implicitIndex = findImplicitMultiplication(formula);
         if (implicitIndex != -1) {
+            // Split the formula where implicit multiplication occurs
             String left = formula.substring(0, implicitIndex).trim();
             String right = formula.substring(implicitIndex).trim();
-            return parseFormula(left) && parseFormula(right); // Check both parts recursively
+            // Recursively parse both parts
+            return parseFormula(left) && parseFormula(right);
         }
 
-        return false; // Return false if no valid pattern is matched
+        return false; // If none of the patterns match, it's not a valid formula
     }
 
     private static int findLowestPriorityOperator(String text) {
-        int level = 0;
-        int lowestIndex = -1;
-        int lowestPriority = Integer.MAX_VALUE;
+        int level = 0; // Tracks the depth of parentheses
+        int lowestIndex = -1; // Index of the operator with the lowest priority
+        int lowestPriority = Integer.MAX_VALUE; // The current lowest priority found
 
-        // Look for the lowest priority operator outside parentheses
+        // Loop through all characters in the formula
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
 
             if (c == '(') {
-                level++; // Enter parentheses
+                level++; // Increase depth when entering parentheses
             } else if (c == ')') {
-                level--; // Exit parentheses
+                level--; // Decrease depth when exiting parentheses
             } else if (level == 0) { // Only check operators outside parentheses
-                int priority = getOperatorPriority(c);
-                if (priority <= lowestPriority) {
-                    lowestPriority = priority;
-                    lowestIndex = i;
+                int priority = getOperatorPriority(c); // Get the priority of the current operator
+                if (priority <= lowestPriority) { // Lower priority means higher precedence
+                    lowestPriority = priority; // Update the lowest priority found
+                    lowestIndex = i; // Update the index of the operator
                 }
             }
         }
 
-        return lowestIndex; // Return the index of the operator
+        return lowestIndex; // Return the index of the operator with the lowest priority
     }
 
     private static int getOperatorPriority(char c) {
@@ -108,97 +111,116 @@ public class Cell {
         switch (c) {
             case '+':
             case '-':
-                return 1; // Lower priority
+                return 1; // Addition and subtraction have the lowest priority
             case '*':
             case '/':
-                return 2; // Higher priority
+                return 2; // Multiplication and division have higher priority
             default:
                 return Integer.MAX_VALUE; // Not an operator
         }
     }
 
     private static int findImplicitMultiplication(String expr) {
-        int depth = 0;
+        int depth = 0; // Tracks the depth of parentheses
 
-        // Look for cases like (1+2)(3+4)
+        // Loop through all characters except the last one
         for (int i = 0; i < expr.length() - 1; i++) {
             char current = expr.charAt(i);
             char next = expr.charAt(i + 1);
 
-            if (current == '(') depth++;
-            else if (current == ')') {
-                depth--;
-                // Check if implicit multiplication exists
+            if (current == '(') {
+                depth++; // Increase depth when entering parentheses
+            } else if (current == ')') {
+                depth--; // Decrease depth when exiting parentheses
+                // Look for implicit multiplication
                 if (depth == 0 && (next == '(' || Character.isLetterOrDigit(next))) {
-                    return i + 1; // Return the index where implicit multiplication occurs
+                    return i + 1; // Return the index where implicit multiplication is found
                 }
             }
         }
 
-        return -1; // Return -1 if no implicit multiplication is found
+        return -1; // No implicit multiplication was found
     }
 
     private static boolean isValidCell(String text) {
-        // A valid cell must start with a letter and end with a number
+        // A cell must be at least two characters long
         if (text.length() < 2) return false;
 
-        // Check the first character is a letter
+        // Get the first character and ensure it is a letter (uppercase or lowercase)
         char column = Character.toUpperCase(text.charAt(0));
-        if (column < 'A' || column > 'Z') return false;
+        if (column < 'A' || column > 'Z') return false; // Column must be between A and Z
 
-        // Check the rest is a valid number
+        // Try to parse the remaining characters as a number (the row)
         try {
             int row = Integer.parseInt(text.substring(1));
-            return row >= 0 && row < 100; // Valid cell row range: 0-99
+            return row >= 0 && row < 100; // Rows must be between 0 and 99
         } catch (NumberFormatException e) {
-            return false;
+            return false; // If the rest is not a number, it's not a valid cell
         }
     }
 
     private static boolean areParenthesesBalanced(String text) {
-        int balance = 0;
+        int balance = 0; // Tracks the balance of parentheses
 
-        // Check if parentheses are balanced
+        // Loop through all characters in the formula
         for (char c : text.toCharArray()) {
-            if (c == '(') balance++;
-            else if (c == ')') {
-                balance--;
+            if (c == '(') {
+                balance++; // Increase balance for an open parenthesis
+            } else if (c == ')') {
+                balance--; // Decrease balance for a close parenthesis
                 if (balance < 0) return false; // Too many closing parentheses
             }
         }
 
-        return balance == 0; // Return true if balanced
+        return balance == 0; // Return true if all parentheses are balanced
     }
 
-    private static boolean isNumber(String text) {
+    public static boolean isNumber(String text) {
         // Check if the text is a valid number
         try {
             Double.parseDouble(text);
-            return true;
+            return true; // The text is a valid number
         } catch (NumberFormatException e) {
-            return false;
+            return false; // Not a valid number
         }
     }
 
     private static boolean isMatchingParenthesis(String expr, int open, int close) {
-        int depth = 0;
+        int depth = 0; // Tracks the depth of parentheses
 
-        // Check if parentheses match
+        // Check if the parentheses match
         for (int i = open; i <= close; i++) {
-            if (expr.charAt(i) == '(') depth++;
-            else if (expr.charAt(i) == ')') {
-                depth--;
+            if (expr.charAt(i) == '(') {
+                depth++; // Increase depth for an open parenthesis
+            } else if (expr.charAt(i) == ')') {
+                depth--; // Decrease depth for a close parenthesis
                 if (depth == 0 && i != close) return false; // Mismatched parentheses
             }
         }
 
-        return depth == 0; // Return true if matching
+        return depth == 0; // Return true if the parentheses match
+    }
+    public static boolean isText(String text) {
+        // Null or empty strings are not considered text
+        if (text == null || text.isEmpty()) {
+            return false;
+        }
+
+        // Check if the string is a number
+        if (isNumber(text)) {
+            return false;
+        }
+
+        // Check if the string is a formula
+        if (isForm(text)) {
+            return false;
+        }
+
+        // If it's neither a number nor a formula, it's valid text
+        return true;
     }
 
-
-
-    }
-
+}
 
 
 
