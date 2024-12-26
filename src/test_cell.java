@@ -4,78 +4,67 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class test_cell {
     @Test
     void testValidFormulas() {
+        Cell cell = new Cell("foo");
+
         // Positive tests
-        assertTrue(Cell.isForm("=(((3)))"));
-        assertTrue(Cell.isForm("=(1+2)*3"));
-        assertTrue(Cell.isForm("=(1+2)*3"));
-        assertTrue(Cell.isForm("=3+(9*8)+2"));
-        assertTrue(Cell.isForm("=(1+((2*3)-(4/5)))"));
-        assertTrue(Cell.isForm("=((1+2)(3+4))"));
-        assertTrue(Cell.isForm("=(A1+b2)*C3"));
-        assertTrue(Cell.isForm("=123"));
-        assertTrue(Cell.isForm("=a1"));
-        assertTrue(Cell.isForm("=0"));
-        assertTrue(Cell.isForm("=-1.23"));
-        assertTrue(Cell.isForm("=A1"));
-        assertTrue(Cell.isForm("=a99"));
-        assertTrue(Cell.isForm("=A1+B2"));
-        assertTrue(Cell.isForm("=1+2"));
-        assertTrue(Cell.isForm("=1-2"));
-        assertTrue(Cell.isForm("=(1+2)"));
-        assertTrue(Cell.isForm("=(1+2)*(3+4)"));
-        assertTrue(Cell.isForm("=(1+2)(3+4)"));
-        assertTrue(Cell.isForm("=((1+2)*3)(4/2)"));
-        assertTrue(Cell.isForm("=(1)(2)(3)"));
-        assertTrue(Cell.isForm("=(A1)(B2)"));
-        assertTrue(Cell.isForm("=((A1+B2)*C3)(D4)"));
-        assertTrue(Cell.isForm("=A1+B2*C3"));
-        assertTrue(Cell.isForm("=(A1+B2)*(C3+D4)"));
-        assertTrue(Cell.isForm("=A1+A2+A3+A4"));
-        assertTrue(Cell.isForm("=(A1)(B2)+C3"));
-        assertTrue(Cell.isForm("=(A1+(B2*C3))/D4"));
-        assertTrue(Cell.isForm("=A1+B2/3*C4-5"));
-        assertTrue(Cell.isForm("=123456789"));
-        assertTrue(Cell.isForm("=-123456.789"));
-        assertTrue(Cell.isForm("=(123456.789)"));
-        assertTrue(Cell.isForm("=(-123.45)*(678.90)"));
-        assertTrue(Cell.isForm("=(1+2)*(3-4)/(5+6)"));
-        assertTrue(Cell.isForm("=(1-2+3*4/5)"));
-        assertTrue(Cell.isForm("=(1+2)*(3/4)-(5*6)"));
-        assertTrue(Cell.isForm("=((1*2)+(3/4))-5"));
-        assertTrue(Cell.isForm("=1+2*3-4/5"));
-        assertTrue(Cell.isForm("=(A1+(B2*C3-(D4/E5)))"));
-        assertTrue(Cell.isForm("=(A1+(B2*(C3-(D4/E5))))"));
-        assertTrue(Cell.isForm("=(((A1+B2)*(C3/D4))-E5)"));
-        assertTrue(Cell.isForm("=(A1)(B2)(C3)"));
-        assertTrue(Cell.isForm("=((A1+B2)*(C3+D4))/(E5)"));
-        assertTrue(Cell.isNumber("5"));
-        assertTrue(Cell.isNumber("500000000000000000"));
-        assertTrue(Cell.isNumber("-22"));
-        assertTrue(Cell.isNumber("2999.9292"));
-        assertTrue(Cell.isNumber("-234.233"));
-        assertTrue(Cell.isNumber("0"));
-        assertTrue(Cell.isNumber("+10"));
-        assertTrue(Cell.isNumber("+10.344"));
-        assertTrue(Cell.isText("nffbfr"));
-        assertTrue(Cell.isText("AvItAl"));
-        assertTrue(Cell.isText("avital325"));
-        assertTrue(Cell.isText("AA1"));
-        assertTrue(Cell.isText("=AA1"));
-        assertTrue(Cell.isText("=ZA"));
-        assertTrue(Cell.isText("Hello World"));
-
-
-
-
-
-
-
-
-
-
-
-
-
+        assertTrue(cell.isForm("=(1+2)"));
+        assertTrue(cell.isForm("=(((3)))"));
+        assertTrue(cell.isForm("=(3)*(2)"));
+        assertTrue(cell.isForm("=(1+2)*3"));
+        assertTrue(cell.isForm("=(1+2)*3"));
+        assertTrue(cell.isForm("=3+(9*8)+2"));
+        assertTrue(cell.isForm("=(1+((2*3)-(4/5)))"));
+        assertTrue(cell.isForm("=((1+2)*(3+4))"));
+        assertTrue(cell.isForm("=(A1+b2)*C3"));
+        assertTrue(cell.isForm("=123"));
+        assertTrue(cell.isForm("=a1"));
+        assertTrue(cell.isForm("=0"));
+        assertTrue(cell.isForm("=-1.23"));
+        assertTrue(cell.isForm("=A1"));
+        assertTrue(cell.isForm("=a99"));
+        assertTrue(cell.isForm("=A1+B2"));
+        assertTrue(cell.isForm("=1+2"));
+        assertTrue(cell.isForm("=1-2"));
+        assertTrue(cell.isForm("=(1+2)"));
+        assertTrue(cell.isForm("=(1+2)*(3+4)"));
+        assertTrue(cell.isForm("=((1+2)*3)*(4/2)"));
+        assertTrue(cell.isForm("=(1)*(2)*(3)"));
+        assertTrue(cell.isForm("=(A1)*(B2)"));
+        assertTrue(cell.isForm("=((A1+B2)*C3)*(D4)"));
+        assertTrue(cell.isForm("=A1+B2*C3"));
+        assertTrue(cell.isForm("=(A1+B2)*(C3+D4)"));
+        assertTrue(cell.isForm("=A1+A2+A3+A4"));
+        assertTrue(cell.isForm("=(A1)*(B2)+C3"));
+        assertTrue(cell.isForm("=(A1+(B2*C3))/D4"));
+        assertTrue(cell.isForm("=A1+B2/3*C4-5"));
+        assertTrue(cell.isForm("=123456789"));
+        assertTrue(cell.isForm("=-123456.789"));
+        assertTrue(cell.isForm("=(123456.789)"));
+        assertTrue(cell.isForm("=(-123.45)*(678.90)"));
+        assertTrue(cell.isForm("=(1+2)*(3-4)/(5+6)"));
+        assertTrue(cell.isForm("=(1-2+3*4/5)"));
+        assertTrue(cell.isForm("=(1+2)*(3/4)-(5*6)"));
+        assertTrue(cell.isForm("=((1*2)+(3/4))-5"));
+        assertTrue(cell.isForm("=1+2*3-4/5"));
+        assertTrue(cell.isForm("=(A1+(B2*C3-(D4/E5)))"));
+        assertTrue(cell.isForm("=(A1+(B2*(C3-(D4/E5))))"));
+        assertTrue(cell.isForm("=(((A1+B2)*(C3/D4))-E5)"));
+        assertTrue(cell.isForm("=((A1+B2)*(C3+D4))/(E5)"));
+        assertTrue(cell.isNumber("5"));
+        assertTrue(cell.isNumber("500000000000000000"));
+        assertTrue(cell.isNumber("-22"));
+        assertTrue(cell.isNumber("2999.9292"));
+        assertTrue(cell.isNumber("-234.233"));
+        assertTrue(cell.isNumber("0"));
+        assertTrue(cell.isNumber("+10"));
+        assertTrue(cell.isNumber("+10.344"));
+        assertTrue(cell.isText("nffbfr"));
+        assertTrue(cell.isText("AvItAl"));
+        assertTrue(cell.isText("avital325"));
+        assertTrue(cell.isText("AA1"));
+        assertTrue(cell.isText("=AA1"));
+        assertTrue(cell.isText("=ZA"));
+        assertTrue(cell.isText("Hello World"));
 
 
 
@@ -83,40 +72,42 @@ public class test_cell {
 
     @Test
     void testInvalidFormulas() {
+        Cell cell = new Cell("foo");
+
         // Negative tests
-        assertFalse(Cell.isForm(""));
-        assertFalse(Cell.isForm("=(2+"));
-        assertFalse(Cell.isForm("=3+(9*8"));
-        assertFalse(Cell.isForm(""));
-        assertFalse(Cell.isForm("="));
-        assertFalse(Cell.isForm("=()"));
-        assertFalse(Cell.isForm("=)1+2("));
-        assertFalse(Cell.isForm("=1+2)"));
-        assertFalse(Cell.isForm("=(1+2"));
-        assertFalse(Cell.isForm("=(A1+)"));
-        assertFalse(Cell.isForm("=A1+B2)"));
-        assertFalse(Cell.isForm("=1+(2*3"));
-        assertFalse(Cell.isForm("=1+*2"));
-        assertFalse(Cell.isForm("=(1+2)+"));
-        assertFalse(Cell.isForm("=A"));
-        assertFalse(Cell.isForm("=1A"));
-        assertFalse(Cell.isForm("=AA1"));
-        assertFalse(Cell.isForm("=A-1"));
-        assertFalse(Cell.isForm("=A1.2"));
-        assertFalse(Cell.isForm("=Z100"));
-        assertFalse(Cell.isNumber(""));
-        assertFalse(Cell.isNumber("BGVGV"));
-        assertFalse(Cell.isNumber("A1"));
-        assertFalse(Cell.isNumber("=A1"));
-        assertFalse(Cell.isNumber("=5"));
-        assertFalse(Cell.isNumber("=-8775"));
-        assertFalse(Cell.isText("=A1"));
-        assertFalse(Cell.isText("=A1*3"));
-        assertFalse(Cell.isText("=(3)*(2)"));
-        assertFalse(Cell.isText("1000.222"));
-        assertFalse(Cell.isText("-1000.222"));
-        assertFalse(Cell.isText(""));
-        assertFalse(Cell.isText(null));
+        assertFalse(cell.isForm(""));
+        assertFalse(cell.isForm("=(2+"));
+        assertFalse(cell.isForm("=3+(9*8"));
+        assertFalse(cell.isForm(""));
+        assertFalse(cell.isForm("="));
+        assertFalse(cell.isForm("=()"));
+        assertFalse(cell.isForm("=)1+2("));
+        assertFalse(cell.isForm("=1+2)"));
+        assertFalse(cell.isForm("=(1+2"));
+        assertFalse(cell.isForm("=(A1+)"));
+        assertFalse(cell.isForm("=A1+B2)"));
+        assertFalse(cell.isForm("=1+(2*3"));
+        assertFalse(cell.isForm("=1+*2"));
+        assertFalse(cell.isForm("=(1+2)+"));
+        assertFalse(cell.isForm("=A"));
+        assertFalse(cell.isForm("=1A"));
+        assertFalse(cell.isForm("=AA1"));
+        assertFalse(cell.isForm("=A-1"));
+        assertFalse(cell.isForm("=A1.2"));
+        assertFalse(cell.isForm("=Z100"));
+        assertFalse(cell.isNumber(""));
+        assertFalse(cell.isNumber("BGVGV"));
+        assertFalse(cell.isNumber("A1"));
+        assertFalse(cell.isNumber("=A1"));
+        assertFalse(cell.isNumber("=5"));
+        assertFalse(cell.isNumber("=-8775"));
+        assertFalse(cell.isText("=A1"));
+        assertFalse(cell.isText("=A1*3"));
+        assertFalse(cell.isText("=(3)*(2)"));
+        assertFalse(cell.isText("1000.222"));
+        assertFalse(cell.isText("-1000.222"));
+        assertFalse(cell.isText(""));
+        assertFalse(cell.isText(null));
 
 
 
