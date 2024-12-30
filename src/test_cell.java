@@ -110,8 +110,16 @@ public class test_cell {
         assertFalse(cell.isText(null));
 
 
-
-
+        assert cell.eval("=1+2") == 3;
+        assert cell.eval("=(1+2)*3") == 9;
+        assert cell.eval("=(1+2)*(3-1)") == 6;
+        assert cell.eval("=10/2+3") == 8;
+        assert cell.eval("=(10/(2+3))") == 2;
+        assert cell.eval("=((1+2)*2)-1") == 5;
+        assert cell.eval("=1") == 1;
+        assert cell.eval("=(3)") == 3;
+        assert cell.eval("=((2+2)*3)*2*2+1") == 49;
+        assertThrows(IllegalArgumentException.class, () -> cell.eval("=(1+2)(3+4)")); // Implicit multiplication not supported
 
 
 

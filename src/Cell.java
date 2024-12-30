@@ -5,6 +5,9 @@ public class Cell {
         this.cell_info = cell_info;
     }
 
+    public Cell() {
+    }
+
     public String getCell_info() {
         return cell_info;
     }
@@ -72,7 +75,7 @@ public class Cell {
     }
 
     // This function finds the operator with the lowest priority
-    private int findLowestPriorityOperator(String text) {
+    public int findLowestPriorityOperator(String text) {
         int level = 0; // Tracks the depth of parentheses
         int lowestIndex = -1; // Where the operator is found
         int lowestPriority = Integer.MAX_VALUE; // The current lowest priority
@@ -111,7 +114,7 @@ public class Cell {
     }
 
     // This function checks if the text is a valid cell (e.g., A1)
-    private boolean isValidCell(String text) {
+    public boolean isValidCell(String text) {
         if (text.length() < 2) return false; // Cells must be at least two characters
 
         // The first character must be a letter
@@ -189,6 +192,71 @@ public class Cell {
         // If it's neither a number nor a formula, it's valid text
         return true;
     }
+
+
+    public double eval(String form) {
+        // Step 1: Check if the formula is valid using isForm
+        if (!isForm(form)) {
+            throw new IllegalArgumentException("Invalid formula: " + form);
+        }
+
+        // Step 2: Remove "=" and trim whitespace
+        String formula = form.substring(1).trim();
+
+        // Step 3: Base case: Check if it's a number
+        if (isNumber(formula)) {
+            return Double.parseDouble(formula);
+        }
+
+        // Step 4: Base case: Check if it's a valid cell reference
+        if (isValidCell(formula)) {
+            throw new IllegalArgumentException("Cell references are not supported in this implementation");
+        }
+
+        // Step 5: Handle parentheses
+        if (formula.startsWith("(") && formula.endsWith(")")) {
+            if (isMatchingParenthesis(formula, 0, formula.length() - 1)) {
+                // Evaluate the inner content
+                return eval("=" + formula.substring(1, formula.length() - 1));
+            }
+        }
+
+        // Step 6: Use the existing function to find the lowest priority operator
+        int operatorIndex = findLowestPriorityOperator(formula);
+        if (operatorIndex != -1) {
+            // Split the formula into left and right parts
+            String left = formula.substring(0, operatorIndex).trim();
+            String right = formula.substring(operatorIndex + 1).trim();
+            char operator = formula.charAt(operatorIndex);
+
+            // Recursively evaluate both parts and perform the operation
+            return calculate(eval("=" + left), eval("=" + right), operator);
+        }
+
+        // If no valid operator found, throw an error
+        throw new IllegalArgumentException("Invalid formula");
+    }
+
+    private double calculate(double left, double right, char operator) {
+        switch (operator) {
+            case '+': return left + right;
+            case '-': return left - right;
+            case '*': return left * right;
+            case '/':
+                if (right == 0) throw new ArithmeticException("Division by zero");
+                return left / right;
+            default:
+                throw new IllegalArgumentException("Unsupported operator: " + operator);
+        }
+    }
+
+
+
+
+
+
+
+
 }
 
 
