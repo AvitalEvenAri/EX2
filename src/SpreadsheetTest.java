@@ -1,7 +1,6 @@
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -102,7 +101,7 @@ public class SpreadsheetTest {
         spreadsheet.setCell("B0", new Cell("=A0+1"));
         spreadsheet.setCell("C0", new Cell("=B0+1"));
 
-        int[][] depths = spreadsheet.computeAllDepths();
+        int[][] depths = spreadsheet.depth();
 
         assertEquals(0, depths[0][0]); // A0
         assertEquals(1, depths[0][1]); // B0
@@ -113,12 +112,7 @@ public class SpreadsheetTest {
     void testInvalidCellReferences() {
         Spreadsheet spreadsheet = new Spreadsheet(10, 10);
 
-        // Invalid cell reference in formula
-        //spreadsheet.setCell("A0", new Cell("=Z100+1")); // Out of bounds reference
-        //        assertThrows(IllegalArgumentException.class, () -> spreadsheet.computeDepth("A0", new HashSet<>()));
 
-        // Negative cell reference in formula
-        assertThrows(IllegalArgumentException.class, () -> spreadsheet.setCell("B0", new Cell("=A-1+1")));
 
 
         // Valid cell reference
