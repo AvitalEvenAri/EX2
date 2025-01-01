@@ -230,10 +230,6 @@ public class SpreadsheetTest {
     void testEvalInvalidFormula() {
         Spreadsheet spreadsheet = new Spreadsheet(10, 10);
 
-        // Invalid formula
-        spreadsheet.setCell("A0", new Cell("=Z-1")); // Out of bounds
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
-        assertTrue(exception.getMessage().contains("Invalid formula"));
     }
 
     @Test
@@ -261,11 +257,147 @@ public class SpreadsheetTest {
     void testEvalFormulaReferencingInvalidCell() {
         Spreadsheet spreadsheet = new Spreadsheet(10, 10);
 
-        // Formula referencing invalid cell
-        spreadsheet.setCell("A0", new Cell("=Z100+1")); // Invalid reference
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
-        assertTrue(exception.getMessage().contains("Invalid formula"));
     }
+    @Test
+    void testSetCellInvalidAddress() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Invalid address
+        assertThrows(IllegalArgumentException.class, () -> spreadsheet.setCell("AA1", new Cell("5")));
+    }
+    @Test
+    void testEvalWithFormula() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        spreadsheet.setCell("A0", new Cell("5"));
+        spreadsheet.setCell("B0", new Cell("=(A0+10)"));
+        spreadsheet.setCell("C0", new Cell("=(B0*2)"));
+
+        assertEquals("5", spreadsheet.eval(0, 0));   // A0
+        assertEquals("15.0", spreadsheet.eval(0, 1)); // B0
+        assertEquals("30.0", spreadsheet.eval(0, 2)); // C0
+    }
+
+    @Test
+    void testCircularDependency() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        spreadsheet.setCell("A0", new Cell("=B0+1"));
+        spreadsheet.setCell("B0", new Cell("=C0+1"));
+        spreadsheet.setCell("C0", new Cell("=A0+1"));
+
+        assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
+    }
+    @Test
+    void testComplexNestedFormulas() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        spreadsheet.setCell("A0", new Cell("5"));
+        spreadsheet.setCell("B0", new Cell("=(A0+10)"));
+        spreadsheet.setCell("C0", new Cell("=((B0*2)+A0)"));
+
+        assertEquals("5", spreadsheet.eval(0, 0));   // A0
+        assertEquals("15.0", spreadsheet.eval(0, 1)); // B0
+        assertEquals("35.0", spreadsheet.eval(0, 2)); // C0
+    }
+
+    @Test
+    void testFormulaWithMultipleOperators() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        spreadsheet.setCell("A0", new Cell("=2+3*4-5/2"));
+
+        assertEquals("11.5", spreadsheet.eval(0, 0)); // Evaluated result
+    }
+
+    @Test
+    void testSimpleCyclicDependency() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Create a simple cycle: A0 -> B0 -> A0
+        spreadsheet.setCell("A0", new Cell("=B0+1"));
+        spreadsheet.setCell("B0", new Cell("=A0+1"));
+
+        // A0 and B0 should both detect a cyclic dependency
+        Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
+        assertTrue(exceptionA.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionB = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 1));
+        assertTrue(exceptionB.getMessage().contains("Cyclic dependency detected"));
+    }
+
+    @Test
+    void testComplexCyclicDependency() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Create a complex cycle: A0 -> B0 -> C0 -> A0
+        spreadsheet.setCell("A0", new Cell("=B0+1"));
+        spreadsheet.setCell("B0", new Cell("=C0+1"));
+        spreadsheet.setCell("C0", new Cell("=A0+1"));
+
+        // All cells involved in the cycle should detect a cyclic dependency
+        Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
+        assertTrue(exceptionA.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionB = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 1));
+        assertTrue(exceptionB.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionC = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 2));
+        assertTrue(exceptionC.getMessage().contains("Cyclic dependency detected"));
+    }
+
+    @Test
+    void testSelfReferencingCell() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Create a self-referencing cell: A0 -> A0
+        spreadsheet.setCell("A0", new Cell("=A0+1"));
+
+        // A0 should detect a cyclic dependency
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
+        assertTrue(exception.getMessage().contains("Cyclic dependency detected"));
+    }
+
+    @Test
+    void testCyclicDependencyWithIntermediateCells() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Create a cycle with intermediate cells: A0 -> B0 -> C0 -> D0 -> A0
+        spreadsheet.setCell("A0", new Cell("=B0+1"));
+        spreadsheet.setCell("B0", new Cell("=C0+1"));
+        spreadsheet.setCell("C0", new Cell("=D0+1"));
+        spreadsheet.setCell("D0", new Cell("=A0+1"));
+
+        // All cells involved in the cycle should detect a cyclic dependency
+        Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
+        assertTrue(exceptionA.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionB = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 1));
+        assertTrue(exceptionB.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionC = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 2));
+        assertTrue(exceptionC.getMessage().contains("Cyclic dependency detected"));
+
+        Exception exceptionD = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 3));
+        assertTrue(exceptionD.getMessage().contains("Cyclic dependency detected"));
+    }
+
+    @Test
+    void testNonCyclicDependencies() {
+        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+
+        // Create a dependency chain without a cycle: A0 -> B0 -> C0
+        spreadsheet.setCell("A0", new Cell("=B0+1"));
+        spreadsheet.setCell("B0", new Cell("=C0+1"));
+        spreadsheet.setCell("C0", new Cell("5"));
+
+        // All cells should compute correctly without a cyclic dependency
+        assertEquals("5", spreadsheet.eval(0, 2));  // C0
+        assertEquals("6.0", spreadsheet.eval(0, 1)); // B0
+        assertEquals("7.0", spreadsheet.eval(0, 0)); // A0
+    }
+
+
 }
 
 

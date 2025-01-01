@@ -246,7 +246,7 @@ public class Cell {
         throw new IllegalArgumentException("Invalid formula");
     }
 
-    private double calculate(double left, double right, char operator) {
+    public double calculate(double left, double right, char operator) {
         switch (operator) {
             case '+': return left + right;
             case '-': return left - right;

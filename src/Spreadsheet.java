@@ -219,7 +219,7 @@ public class Spreadsheet {
 
             // Evaluate the formula
             try {
-                return String.valueOf(cell.eval(cellInfo));
+                return evaluateFormula(cellInfo, new HashSet<>());
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException("Invalid formula in cell: " + cellInfo);
             }
@@ -229,4 +229,115 @@ public class Spreadsheet {
         throw new IllegalArgumentException("Invalid cell content: " + cellInfo);
     }
 
-}
+    private String evaluateFormula(String formula, Set<String> visited) {
+        if (!formula.startsWith("=")) {
+            throw new IllegalArgumentException("Invalid formula format: " + formula);
+        }
+
+        // Remove the '=' and trim
+        String expr = formula.substring(1).trim();
+
+        // If it's just a number, return it
+        if (new Cell().isNumber(expr)) {
+            double value = Double.parseDouble(expr);
+            return formatNumber(value);
+        }
+
+        // If it's a cell reference, evaluate that cell
+        if (new Cell().isValidCell(expr)) {
+            if (visited.contains(expr)) {
+                throw new IllegalArgumentException("Circular reference detected");
+            }
+            visited.add(expr);
+            int[] indices = parseAddress(expr);
+            return eval(indices[0], indices[1]);
+        }
+
+        // Handle parentheses
+        if (expr.startsWith("(") && expr.endsWith(")")) {
+            String innerExpr = expr.substring(1, expr.length() - 1).trim();
+            return evaluateFormula("=" + innerExpr, visited);
+        }
+
+        // Find the operator with lowest precedence
+        Cell cell = new Cell();
+        int operatorIndex = cell.findLowestPriorityOperator(expr);
+        if (operatorIndex != -1) {
+            String leftPart = expr.substring(0, operatorIndex).trim();
+            String rightPart = expr.substring(operatorIndex + 1).trim();
+            char operator = expr.charAt(operatorIndex);
+
+            // Recursively evaluate left and right parts
+            double leftValue = parseValue(leftPart, visited);
+            double rightValue = parseValue(rightPart, visited);
+
+            // Perform the operation
+            double result = performOperation(leftValue, rightValue, operator);
+            return formatNumber(result);
+        }
+
+        throw new IllegalArgumentException("Invalid formula expression: " + expr);
+    }
+    private double parseValue(String expr, Set<String> visited) {
+        if (new Cell().isNumber(expr)) {
+            return Double.parseDouble(expr);
+        }
+        if (new Cell().isValidCell(expr)) {
+            if (visited.contains(expr)) {
+                throw new IllegalArgumentException("Circular reference detected");
+            }
+            visited.add(expr);
+            int[] indices = parseAddress(expr);
+            String result = eval(indices[0], indices[1]);
+            return Double.parseDouble(result);
+        }
+        // Handle nested expressions
+        return Double.parseDouble(evaluateFormula("=" + expr, visited));
+    }
+    private double performOperation(double left, double right, char operator) {
+        switch (operator) {
+            case '+': return left + right;
+            case '-': return left - right;
+            case '*': return left * right;
+            case '/':
+                if (right == 0) throw new ArithmeticException("Division by zero");
+                return left / right;
+            default:
+                throw new IllegalArgumentException("Unsupported operator: " + operator);
+        }
+    }
+
+    private String formatNumber(double number) {
+        // Format the number to remove trailing zeros and unnecessary decimal point
+        String formatted = String.format("%.1f", number);
+        return formatted.endsWith(".0") ? formatted : String.format("%.1f", number);
+    }
+    public String[][] evalAll() {
+        String[][] result = new String[rows][cols];
+
+        // Evaluate each cell in the spreadsheet
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                try {
+                    // Check for circular dependencies before evaluation
+                    String address = getAddress(i, j);
+                    Set<String> visited = new HashSet<>();
+                    if (computeDepth(address, visited) == -1) {
+                        result[i][j] = "ERR_CYCL";
+                    } else {
+                        result[i][j] = eval(i, j);
+                    }
+                } catch (IllegalArgumentException e) {
+                    // Check if the error is due to circular reference
+                    if (e.getMessage().contains("Circular reference")) {
+                        result[i][j] = "ERR_CYCL";
+                    } else {
+                        result[i][j] = "#ERROR";
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+    }
