@@ -8,6 +8,7 @@ public class test_cell {
 
         // Positive tests
         assertTrue(cell.isForm("=(1+2)"));
+        assertTrue(cell.isForm("=(a0)*2"));
         assertTrue(cell.isForm("=(((3)))"));
         assertTrue(cell.isForm("=(3)*(2)"));
         assertTrue(cell.isForm("=(1+2)*3"));
@@ -62,8 +63,7 @@ public class test_cell {
         assertTrue(cell.isText("AvItAl"));
         assertTrue(cell.isText("avital325"));
         assertTrue(cell.isText("AA1"));
-        assertTrue(cell.isText("=AA1"));
-        assertTrue(cell.isText("=ZA"));
+        assertTrue(cell.isText("ZA"));
         assertTrue(cell.isText("Hello World"));
 
 
@@ -119,16 +119,41 @@ public class test_cell {
         assert cell.eval("=1") == 1;
         assert cell.eval("=(3)") == 3;
         assert cell.eval("=((2+2)*3)*2*2+1") == 49;
-        assertThrows(IllegalArgumentException.class, () -> cell.eval("=(1+2)(3+4)")); // Implicit multiplication not supported
+        assertThrows(IllegalArgumentException.class, () -> cell.eval("=(1+2)(3+4)")); // Implicit multiplication not supporte
 
+            // Valid cells
+            assertTrue(cell.isValidCell("A1"));
+            assertTrue(cell.isValidCell("J99"));
 
+            // Invalid cells
+            assertFalse(cell.isValidCell("Z100")); // Row out of bounds
+            assertFalse(cell.isValidCell("A-1")); // Negative row
+            assertFalse(cell.isValidCell("AA1")); // Invalid column
+            assertFalse(cell.isValidCell(null));  // Null input
+            assertFalse(cell.isValidCell(""));    // Empty input
+        // Valid formulas
+        assertTrue(cell.isForm("=A1+1"));
+        assertTrue(cell.isForm("=(3+5)*2"));
+        assertTrue(cell.isForm("=A1/B2"));
 
-
-
-
-
-
-
+        // Invalid formulas
+        assertFalse(cell.isForm(null));        // Null input
+        assertFalse(cell.isForm(""));          // Empty input
+        assertFalse(cell.isForm("A1+1"));      // Missing '=' prefix
+        assertFalse(cell.isForm("=Z100+1"));   // Invalid cell reference
+        assertFalse(cell.isForm("=(A1+"));     // Unbalanced parentheses
+        assertFalse(cell.isForm("=A1+*B2"));   // Invalid operator sequence
     }
-}
+        }
+
+
+
+
+
+
+
+
+
+
+
 

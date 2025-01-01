@@ -26,6 +26,16 @@ public class Cell {
         // Remove the "=" and clean up spaces
         String formula = text.substring(1).trim();
 
+        // Check if the formula is a valid number
+        if (isNumber(formula)) {
+            return true; // Formulas like "=5" are valid
+        }
+
+        // Check if the formula is a valid cell reference
+        if (isValidCell(formula)) {
+            return true; // Formulas like "=A1" are valid
+        }
+
         // Check if parentheses are balanced
         if (!areParenthesesBalanced(formula)) {
             return false; // Return false if parentheses are not balanced
@@ -40,7 +50,7 @@ public class Cell {
     }
 
     // This function analyzes the formula recursively
-    private boolean parseFormula(String formula) {
+    public boolean parseFormula(String formula) {
         formula = formula.trim(); // Remove extra spaces
 
         // If the formula is just a number
@@ -115,19 +125,18 @@ public class Cell {
 
     // This function checks if the text is a valid cell (e.g., A1)
     public boolean isValidCell(String text) {
-        if (text.length() < 2) return false; // Cells must be at least two characters
-
+        if (text == null || text.length() < 2) return false; // Cells must not be null and must be at least two characters
         // The first character must be a letter
         char column = Character.toUpperCase(text.charAt(0));
         if (column < 'A' || column > 'Z') return false;
 
-        // The rest must be a number
         try {
             int row = Integer.parseInt(text.substring(1));
             return row >= 0 && row < 100; // Rows must be between 0 and 99
         } catch (NumberFormatException e) {
             return false; // Not a valid number
         }
+
     }
 
     // This function checks if parentheses are balanced
@@ -179,17 +188,17 @@ public class Cell {
             return false;
         }
 
+        // If the text starts with "=", it's not text
+        if (text.startsWith("=")) {
+            return false;
+        }
+
         // Check if the string is a number
         if (isNumber(text)) {
             return false;
         }
 
-        // Check if the string is a formula
-        if (isForm(text)) {
-            return false;
-        }
-
-        // If it's neither a number nor a formula, it's valid text
+        // If it's neither a number nor starts with "=", it's valid text
         return true;
     }
 
