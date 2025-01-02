@@ -1,10 +1,12 @@
+package assignments.ex2;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 public class test_cell {
     @Test
     void testValidFormulas() {
-        Cell cell = new Cell("foo");
+        Cell1 cell = new Cell1("foo");
 
         // Positive tests
         assertTrue(cell.isForm("=(1+2)"));
@@ -72,7 +74,7 @@ public class test_cell {
 
     @Test
     void testInvalidFormulas() {
-        Cell cell = new Cell("foo");
+        Cell1 cell = new Cell1("foo");
 
         // Negative tests
         assertFalse(cell.isForm(""));

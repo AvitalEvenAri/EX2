@@ -1,30 +1,32 @@
+package assignments.ex2;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class Spreadsheet {
+public class Spreadsheet1 {
     private final int rows;
     private final int cols;
-    private final Cell[][] cells;
+    private final Cell1[][] cells;
 
     // Constructor for the spreadsheet
-    public Spreadsheet(int rows, int cols) {
+    public Spreadsheet1(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
-        this.cells = new Cell[rows][cols];
+        this.cells = new Cell1[rows][cols];
 
         // Initialize all cells as empty
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                cells[i][j] = new Cell(""); // Initialize empty cells
+                cells[i][j] = new Cell1(""); // Initialize empty cells
             }
         }
     }
-    public Cell get(int x, int y) {
+    public Cell1 get(int x, int y) {
         String address = getAddress(x, y);
         return getCell(address);
     }
 
-    public void set(int x, int y, Cell c) {
+    public void set(int x, int y, Cell1 c) {
         String address = getAddress(x, y);
         setCell(address, c);
     }
@@ -68,13 +70,13 @@ public class Spreadsheet {
     }
 
     // Retrieves a cell by its address
-    public Cell getCell(String address) {
+    public Cell1 getCell(String address) {
         int[] indices = parseAddress(address);
         return cells[indices[0]][indices[1]];
     }
 
     // Sets the content of a cell after validating its address and content
-    public void setCell(String address, Cell cell) {
+    public void setCell(String address, Cell1 cell) {
         if (!isValidCellAddress(address)) {
             throw new IllegalArgumentException("Invalid cell address: " + address);
         }
@@ -107,7 +109,7 @@ public class Spreadsheet {
 
         visited.add(address);
 
-        Cell cell = getCell(address);
+        Cell1 cell = getCell(address);
         String cellInfo = cell.getCell_info();
 
         if (!cell.isForm(cellInfo)) {
@@ -182,7 +184,7 @@ public class Spreadsheet {
             throw new IllegalArgumentException("Invalid cell coordinates: (" + x + ", " + y + ")");
         }
 
-        Cell cell = cells[x][y];
+        Cell1 cell = cells[x][y];
         String cellInfo = cell.getCell_info();
 
         if (cellInfo == null || cellInfo.isEmpty()) {
@@ -245,12 +247,12 @@ public class Spreadsheet {
 
         String expr = formula.substring(1).trim();
 
-        if (new Cell().isNumber(expr)) {
+        if (new Cell1().isNumber(expr)) {
             double value = Double.parseDouble(expr);
             return formatNumber(value);
         }
 
-        if (new Cell().isValidCell(expr)) {
+        if (new Cell1().isValidCell(expr)) {
             if (visited.contains(expr)) {
                 throw new IllegalArgumentException("Circular reference detected");
             }
@@ -264,7 +266,7 @@ public class Spreadsheet {
             return evaluateFormula("=" + innerExpr, visited);
         }
 
-        Cell cell = new Cell();
+        Cell1 cell = new Cell1();
         int operatorIndex = cell.findLowestPriorityOperator(expr);
         if (operatorIndex != -1) {
             String leftPart = expr.substring(0, operatorIndex).trim();
@@ -283,10 +285,10 @@ public class Spreadsheet {
 
     // Parses and evaluates a value from a formula expression
     private double parseValue(String expr, Set<String> visited) {
-        if (new Cell().isNumber(expr)) {
+        if (new Cell1().isNumber(expr)) {
             return Double.parseDouble(expr);
         }
-        if (new Cell().isValidCell(expr)) {
+        if (new Cell1().isValidCell(expr)) {
             if (visited.contains(expr)) {
                 throw new IllegalArgumentException("Circular reference detected");
             }

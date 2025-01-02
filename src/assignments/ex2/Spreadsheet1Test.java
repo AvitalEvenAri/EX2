@@ -1,14 +1,16 @@
+package assignments.ex2;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SpreadsheetTest {
+public class Spreadsheet1Test {
 
     @Test
     void testParseAddress() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Valid addresses
         int[] result = spreadsheet.parseAddress("A0");
@@ -29,16 +31,16 @@ public class SpreadsheetTest {
 
     @Test
     void testSetAndGet() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Setting and getting cells
-        Cell cellA1 = new Cell("=B1");
+        Cell1 cellA1 = new Cell1("=B1");
         spreadsheet.setCell("A0", cellA1);
 
-        Cell retrievedCell = spreadsheet.getCell("A0");
+        Cell1 retrievedCell = spreadsheet.getCell("A0");
         assertEquals("=B1", retrievedCell.getCell_info());
 
-        Cell cellB1 = new Cell("5");
+        Cell1 cellB1 = new Cell1("5");
         spreadsheet.setCell("B1", cellB1);
 
         retrievedCell = spreadsheet.getCell("B1");
@@ -47,35 +49,35 @@ public class SpreadsheetTest {
 
     @Test
     void testComputeDepthForNumbersAndText() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Numbers and text should have depth 0
-        spreadsheet.setCell("A0", new Cell("5"));
+        spreadsheet.setCell("A0", new Cell1("5"));
         assertEquals(0, spreadsheet.computeDepth("A0", new HashSet<>()));
 
-        spreadsheet.setCell("B0", new Cell("Hello"));
+        spreadsheet.setCell("B0", new Cell1("Hello"));
         assertEquals(0, spreadsheet.computeDepth("B0", new HashSet<>()));
     }
 
     @Test
     void testComputeDepthForSimpleFormulas() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Simple formulas should have depth 1
-        spreadsheet.setCell("A0", new Cell("=5"));
+        spreadsheet.setCell("A0", new Cell1("=5"));
         assertEquals(1, spreadsheet.computeDepth("A0", new HashSet<>()));
 
-        spreadsheet.setCell("B0", new Cell("=3+5"));
+        spreadsheet.setCell("B0", new Cell1("=3+5"));
         assertEquals(1, spreadsheet.computeDepth("B0", new HashSet<>()));
     }
 
     @Test
     void testComputeDepthWithDependencies() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=A0+1"));
-        spreadsheet.setCell("C0", new Cell("=B0+1"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=A0+1"));
+        spreadsheet.setCell("C0", new Cell1("=B0+1"));
 
         assertEquals(0, spreadsheet.computeDepth("A0", new HashSet<>()));
         assertEquals(1, spreadsheet.computeDepth("B0", new HashSet<>()));
@@ -84,10 +86,10 @@ public class SpreadsheetTest {
 
     @Test
     void testComputeDepthWithCycle() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=A0+1"));
 
         assertEquals(-1, spreadsheet.computeDepth("A0", new HashSet<>()));
         assertEquals(-1, spreadsheet.computeDepth("B0", new HashSet<>()));
@@ -95,11 +97,11 @@ public class SpreadsheetTest {
 
     @Test
     void testComputeAllDepths() {
-        Spreadsheet spreadsheet = new Spreadsheet(3, 3);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(3, 3);
 
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=A0+1"));
-        spreadsheet.setCell("C0", new Cell("=B0+1"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=A0+1"));
+        spreadsheet.setCell("C0", new Cell1("=B0+1"));
 
         int[][] depths = spreadsheet.depth();
 
@@ -110,25 +112,25 @@ public class SpreadsheetTest {
 
     @Test
     void testInvalidCellReferences() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
 
 
 
         // Valid cell reference
-        spreadsheet.setCell("C0", new Cell("=A0+1")); // Valid reference
-        spreadsheet.setCell("A0", new Cell("5"));
+        spreadsheet.setCell("C0", new Cell1("=A0+1")); // Valid reference
+        spreadsheet.setCell("A0", new Cell1("5"));
         assertDoesNotThrow(() -> spreadsheet.computeDepth("C0", new HashSet<>()));
     }
 
     @Test
     void testComplexFormulas() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Formula with nested and mixed references
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=A0*2+3"));
-        spreadsheet.setCell("C0", new Cell("=B0/(A0+1)"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=A0*2+3"));
+        spreadsheet.setCell("C0", new Cell1("=B0/(A0+1)"));
 
         assertEquals(0, spreadsheet.computeDepth("A0", new HashSet<>()));
         assertEquals(1, spreadsheet.computeDepth("B0", new HashSet<>()));
@@ -137,11 +139,11 @@ public class SpreadsheetTest {
 
     @Test
     void testCyclicDependencies() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("=B0+C0"));
-        spreadsheet.setCell("B0", new Cell("=C0+A0"));
-        spreadsheet.setCell("C0", new Cell("=A0+B0"));
+        spreadsheet.setCell("A0", new Cell1("=B0+C0"));
+        spreadsheet.setCell("B0", new Cell1("=C0+A0"));
+        spreadsheet.setCell("C0", new Cell1("=A0+B0"));
 
         assertEquals(-1, spreadsheet.computeDepth("A0", new HashSet<>()));
         assertEquals(-1, spreadsheet.computeDepth("B0", new HashSet<>()));
@@ -149,14 +151,14 @@ public class SpreadsheetTest {
     }
     @Test
     void testInvalidCellAddressDetection() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         assertFalse(spreadsheet.isValidCellAddress("Z100"));
         assertFalse(spreadsheet.isValidCellAddress("A-1"));
     }
     @Test
     void testParseAddressWithInvalidReferences() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         assertThrows(IllegalArgumentException.class, () -> spreadsheet.parseAddress("Z100"));
         assertThrows(IllegalArgumentException.class, () -> spreadsheet.parseAddress("A-1"));
@@ -164,7 +166,7 @@ public class SpreadsheetTest {
 
     @Test
     void testEvalEmptyCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Empty cell
         assertEquals("", spreadsheet.eval(0, 0));
@@ -172,49 +174,49 @@ public class SpreadsheetTest {
 
     @Test
     void testEvalNumberCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Number cell
-        spreadsheet.setCell("A0", new Cell("123"));
+        spreadsheet.setCell("A0", new Cell1("123"));
         assertEquals("123", spreadsheet.eval(0, 0));
     }
 
     @Test
     void testEvalTextCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Text cell
-        spreadsheet.setCell("A0", new Cell("Hello"));
+        spreadsheet.setCell("A0", new Cell1("Hello"));
         assertEquals("Hello", spreadsheet.eval(0, 0));
     }
 
     @Test
     void testEvalSimpleFormula() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Simple formula
-        spreadsheet.setCell("A0", new Cell("=3+5"));
+        spreadsheet.setCell("A0", new Cell1("=3+5"));
         assertEquals("8.0", spreadsheet.eval(0, 0)); // Evaluated result
     }
 
     @Test
     void testEvalNestedFormula() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Nested formula
-        spreadsheet.setCell("A0", new Cell("=3+5"));
-        spreadsheet.setCell("B0", new Cell("=(A0)*2"));
+        spreadsheet.setCell("A0", new Cell1("=3+5"));
+        spreadsheet.setCell("B0", new Cell1("=(A0)*2"));
         assertEquals("8.0", spreadsheet.eval(0, 0)); // Evaluated result of A0
         assertEquals("16.0", spreadsheet.eval(0, 1)); // Evaluated result of B0
     }
 
     @Test
     void testEvalCyclicFormula() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Cyclic formula
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=A0+1"));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
         assertTrue(exception.getMessage().contains("Cyclic dependency detected"));
@@ -222,17 +224,17 @@ public class SpreadsheetTest {
 
     @Test
     void testEvalInvalidFormula() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
     }
 
     @Test
     void testEvalFormulaWithDependencies() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Formula with valid dependencies
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=A0+10"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=A0+10"));
 
         assertEquals("5", spreadsheet.eval(0, 0)); // Value of A0
         assertEquals("15.0", spreadsheet.eval(0, 1)); // Evaluated result of B0
@@ -240,7 +242,7 @@ public class SpreadsheetTest {
 
     @Test
     void testEvalOutOfBoundsCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Out of bounds
         Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(10, 10));
@@ -249,23 +251,23 @@ public class SpreadsheetTest {
 
     @Test
     void testEvalFormulaReferencingInvalidCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
     }
     @Test
     void testSetCellInvalidAddress() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Invalid address
-        assertThrows(IllegalArgumentException.class, () -> spreadsheet.setCell("AA1", new Cell("5")));
+        assertThrows(IllegalArgumentException.class, () -> spreadsheet.setCell("AA1", new Cell1("5")));
     }
     @Test
     void testEvalWithFormula() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=(A0+10)"));
-        spreadsheet.setCell("C0", new Cell("=(B0*2)"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=(A0+10)"));
+        spreadsheet.setCell("C0", new Cell1("=(B0*2)"));
 
         assertEquals("5", spreadsheet.eval(0, 0));   // A0
         assertEquals("15.0", spreadsheet.eval(0, 1)); // B0
@@ -274,21 +276,21 @@ public class SpreadsheetTest {
 
     @Test
     void testCircularDependency() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=C0+1"));
-        spreadsheet.setCell("C0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=C0+1"));
+        spreadsheet.setCell("C0", new Cell1("=A0+1"));
 
         assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
     }
     @Test
     void testComplexNestedFormulas() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("5"));
-        spreadsheet.setCell("B0", new Cell("=(A0+10)"));
-        spreadsheet.setCell("C0", new Cell("=((B0*2)+A0)"));
+        spreadsheet.setCell("A0", new Cell1("5"));
+        spreadsheet.setCell("B0", new Cell1("=(A0+10)"));
+        spreadsheet.setCell("C0", new Cell1("=((B0*2)+A0)"));
 
         assertEquals("5", spreadsheet.eval(0, 0));   // A0
         assertEquals("15.0", spreadsheet.eval(0, 1)); // B0
@@ -297,20 +299,20 @@ public class SpreadsheetTest {
 
     @Test
     void testFormulaWithMultipleOperators() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
-        spreadsheet.setCell("A0", new Cell("=2+3*4-5/2"));
+        spreadsheet.setCell("A0", new Cell1("=2+3*4-5/2"));
 
         assertEquals("11.5", spreadsheet.eval(0, 0)); // Evaluated result
     }
 
     @Test
     void testSimpleCyclicDependency() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Create a simple cycle: A0 -> B0 -> A0
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=A0+1"));
 
         // A0 and B0 should both detect a cyclic dependency
         Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
@@ -322,12 +324,12 @@ public class SpreadsheetTest {
 
     @Test
     void testComplexCyclicDependency() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Create a complex cycle: A0 -> B0 -> C0 -> A0
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=C0+1"));
-        spreadsheet.setCell("C0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=C0+1"));
+        spreadsheet.setCell("C0", new Cell1("=A0+1"));
 
         // All cells involved in the cycle should detect a cyclic dependency
         Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
@@ -342,10 +344,10 @@ public class SpreadsheetTest {
 
     @Test
     void testSelfReferencingCell() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Create a self-referencing cell: A0 -> A0
-        spreadsheet.setCell("A0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=A0+1"));
 
         // A0 should detect a cyclic dependency
         Exception exception = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
@@ -354,13 +356,13 @@ public class SpreadsheetTest {
 
     @Test
     void testCyclicDependencyWithIntermediateCells() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Create a cycle with intermediate cells: A0 -> B0 -> C0 -> D0 -> A0
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=C0+1"));
-        spreadsheet.setCell("C0", new Cell("=D0+1"));
-        spreadsheet.setCell("D0", new Cell("=A0+1"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=C0+1"));
+        spreadsheet.setCell("C0", new Cell1("=D0+1"));
+        spreadsheet.setCell("D0", new Cell1("=A0+1"));
 
         // All cells involved in the cycle should detect a cyclic dependency
         Exception exceptionA = assertThrows(IllegalArgumentException.class, () -> spreadsheet.eval(0, 0));
@@ -378,12 +380,12 @@ public class SpreadsheetTest {
 
     @Test
     void testNonCyclicDependencies() {
-        Spreadsheet spreadsheet = new Spreadsheet(10, 10);
+        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10);
 
         // Create a dependency chain without a cycle: A0 -> B0 -> C0
-        spreadsheet.setCell("A0", new Cell("=B0+1"));
-        spreadsheet.setCell("B0", new Cell("=C0+1"));
-        spreadsheet.setCell("C0", new Cell("5"));
+        spreadsheet.setCell("A0", new Cell1("=B0+1"));
+        spreadsheet.setCell("B0", new Cell1("=C0+1"));
+        spreadsheet.setCell("C0", new Cell1("5"));
 
         // All cells should compute correctly without a cyclic dependency
         assertEquals("5", spreadsheet.eval(0, 2));  // C0

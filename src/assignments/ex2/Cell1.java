@@ -1,11 +1,13 @@
-public class Cell {
+package assignments.ex2;
+
+public class Cell1 {
     private String cell_info;
 
-    public Cell(String cell_info) {
+    public Cell1(String cell_info) {
         this.cell_info = cell_info;
     }
 
-    public Cell() {
+    public Cell1() {
     }
 
     public String getCell_info() {
