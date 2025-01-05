@@ -240,7 +240,7 @@ public class Spreadsheet1 {
     }
 
     // Evaluates a formula and returns the result
-    private String evaluateFormula(String formula, Set<String> visited) {
+    public String evaluateFormula(String formula, Set<String> visited) {
         if (!formula.startsWith("=")) {
             throw new IllegalArgumentException("Invalid formula format: " + formula);
         }
@@ -284,7 +284,7 @@ public class Spreadsheet1 {
     }
 
     // Parses and evaluates a value from a formula expression
-    private double parseValue(String expr, Set<String> visited) {
+    public double parseValue(String expr, Set<String> visited) {
         if (new Cell1().isNumber(expr)) {
             return Double.parseDouble(expr);
         }
@@ -301,7 +301,7 @@ public class Spreadsheet1 {
     }
 
     // Performs arithmetic operations based on the operator
-    private double performOperation(double left, double right, char operator) {
+    public double performOperation(double left, double right, char operator) {
         switch (operator) {
             case '+': return left + right;
             case '-': return left - right;
@@ -315,7 +315,7 @@ public class Spreadsheet1 {
     }
 
     // Formats a double value to remove unnecessary trailing zeros
-    private String formatNumber(double number) {
+    public String formatNumber(double number) {
         String formatted = String.format("%.1f", number);
         return formatted.endsWith(".0") ? formatted : String.format("%.1f", number);
     }

@@ -112,7 +112,7 @@ public class Cell1 {
     }
 
     // This function assigns priorities to operators
-    private int getOperatorPriority(char c) {
+    public int getOperatorPriority(char c) {
         switch (c) {
             case '+':
             case '-':
@@ -142,7 +142,7 @@ public class Cell1 {
     }
 
     // This function checks if parentheses are balanced
-    private boolean areParenthesesBalanced(String text) {
+    public boolean areParenthesesBalanced(String text) {
         int balance = 0; // Keeps track of open and close parentheses
 
         for (char c : text.toCharArray()) {

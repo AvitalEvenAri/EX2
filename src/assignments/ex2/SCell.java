@@ -5,6 +5,7 @@ public class SCell implements Cell {
     private String line;
     private int type;
     private int order;   // The computational order of the cell
+    private String formule;
     /**
      * Constructor for SCell. Initializes the cell with given data.
      * @param s The data to initialize the cell with.
@@ -71,6 +72,7 @@ public class SCell implements Cell {
             if (parseFormula(s.substring(1).trim())) {
                 type = Ex2Utils.FORM; // Mark as a formula
                 order = -1; // Order will be calculated later
+                formule = s;
             } else {
                 type = Ex2Utils.ERR_FORM_FORMAT; // Mark as an invalid formula
                 order = -1; // Invalid formulas default to order -1
@@ -83,7 +85,13 @@ public class SCell implements Cell {
         }
     }
 
+    public String getFormule() {
+        return formule;
+    }
 
+    public void setFormule(String formule) {
+        this.formule = formule;
+    }
 
     @Override
     public String getData() {
