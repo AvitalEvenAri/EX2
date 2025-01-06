@@ -154,5 +154,35 @@ public class SCellTest {
         assertEquals(Ex2Utils.FORM, cell.getType());
         assertEquals(-1, cell.getOrder());
     }
+    @Test
+    public void testToStringForEmptyAndNonEmptyCells() {
+        SCell cell = new SCell("");
+        assertEquals("", cell.toString(), "toString should return an empty string for an empty cell");
+
+        cell.setData("Hello");
+        assertEquals("Hello", cell.toString(), "toString should return the data for a non-empty cell");
+
+        cell.setComputedValue("42");
+        assertEquals("42", cell.toString(), "toString should return the computed value if available");
+    }
+    @Test
+    public void testComputedValueForValidFormula() {
+        SCell cell = new SCell("=5+3");
+        cell.setComputedValue("8");
+        assertEquals("8", cell.toString(), "Computed value should be 8 for the formula =5+3");
+    }
+    @Test
+    public void testTextCellHandling() {
+        SCell cell = new SCell("Hello");
+        assertEquals("Hello", cell.getData(), "Data should be Hello for a text cell");
+        assertEquals(Ex2Utils.TEXT, cell.getType(), "Type should be TEXT for a text cell");
+    }
+    @Test
+    public void testInvalidFormulaHandling() {
+        SCell cell = new SCell("=5+");
+        assertEquals("=5+", cell.getData(), "Data should remain =5+ for an invalid formula");
+        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType(), "Type should be ERR_FORM_FORMAT for an invalid formula");
+    }
+
 }
 

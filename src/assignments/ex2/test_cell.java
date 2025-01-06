@@ -123,16 +123,16 @@ public class test_cell {
         assert cell.eval("=((2+2)*3)*2*2+1") == 49;
         assertThrows(IllegalArgumentException.class, () -> cell.eval("=(1+2)(3+4)")); // Implicit multiplication not supporte
 
-            // Valid cells
-            assertTrue(cell.isValidCell("A1"));
-            assertTrue(cell.isValidCell("J99"));
+        // Valid cells
+        assertTrue(cell.isValidCell("A1"));
+        assertTrue(cell.isValidCell("J99"));
 
-            // Invalid cells
-            assertFalse(cell.isValidCell("Z100")); // Row out of bounds
-            assertFalse(cell.isValidCell("A-1")); // Negative row
-            assertFalse(cell.isValidCell("AA1")); // Invalid column
-            assertFalse(cell.isValidCell(null));  // Null input
-            assertFalse(cell.isValidCell(""));    // Empty input
+        // Invalid cells
+        assertFalse(cell.isValidCell("Z100")); // Row out of bounds
+        assertFalse(cell.isValidCell("A-1")); // Negative row
+        assertFalse(cell.isValidCell("AA1")); // Invalid column
+        assertFalse(cell.isValidCell(null));  // Null input
+        assertFalse(cell.isValidCell(""));    // Empty input
         // Valid formulas
         assertTrue(cell.isForm("=A1+1"));
         assertTrue(cell.isForm("=(3+5)*2"));
@@ -146,7 +146,7 @@ public class test_cell {
         assertFalse(cell.isForm("=(A1+"));     // Unbalanced parentheses
         assertFalse(cell.isForm("=A1+*B2"));   // Invalid operator sequence
     }
-        }
+}
 
 
 

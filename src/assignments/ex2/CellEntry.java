@@ -1,84 +1,77 @@
 package assignments.ex2;
 
 public class CellEntry implements Index2D {
-    private final String index; // נתיב התא (למשל "B3")
+    private String index; // נתיב התא (למשל "B3")
 
     public CellEntry(String index) {
-        this.index = index;
+        if (index != null && index.endsWith("=")) {
+            this.index = index.substring(0, index.length() - 1);
+        } else {
+            this.index = index;
+        }
+        System.out.println("CellEntry created with index: " + this.index); // Debugging
     }
 
     @Override
     public boolean isValid() {
         if (index == null || index.length() < 2) {
-            return false; // שם התא לא חוקי
+            System.out.println("isValid: false (index is null or too short)"); // Debugging
+            return false;
         }
-        // בדיקת האות הראשונה
         char column = Character.toUpperCase(index.charAt(0));
         if (column < 'A' || column > 'Z') {
-            return false; // האות לא חוקית
+            System.out.println("isValid: false (column out of range: " + column + ")"); // Debugging
+            return false;
         }
 
         try {
-            // הסרת "=" רק אם הוא בתחילת המחרוזת
-            String numericPart = index.startsWith("=") ? index.substring(1) : index;
-            numericPart = numericPart.substring(1); // חילוץ המספר מהחלק השני
-            int row = Integer.parseInt(numericPart); // המרה למספר
-            return row >= 0 && row <= 99; // בדיקת טווח
+            String numericPart = index.substring(1).trim();
+            int row = Integer.parseInt(numericPart);
+            boolean valid = row >= 0 && row <= 99;
+            System.out.println("isValid: " + valid + " (row: " + row + ")"); // Debugging
+            return valid;
         } catch (Exception e) {
-            return false; // במקרה של חריגה
+            System.out.println("isValid: false (exception while parsing row)"); // Debugging
+            return false;
         }
     }
 
     @Override
     public int getX() {
         if (!isValid()) {
+            System.out.println("getX: invalid index, returning ERR"); // Debugging
             return Ex2Utils.ERR;
         }
         char column = Character.toUpperCase(index.charAt(0));
-        return column - 'A';
+        int x = column - 'A';
+        System.out.println("getX: " + x); // Debugging
+        return x;
     }
 
-//    @Override
-//    public int getY() {
-//        if (!isValid()) {
-//            return Ex2Utils.ERR;
-//        }
-//        try {
-//            String numericPart = index.replace("=", "").substring(1);
-//            return Integer.parseInt(numericPart);
-//        } catch (NumberFormatException e) {
-//            return Ex2Utils.ERR;
-//        }
-//    }
-@Override
-public int getY() {
-    if (!isValid()) {
-        return Ex2Utils.ERR;
-    }
-    try {
-        // הסרת סימן "=" וניקוי רווחים
-        String numericPart = index.replace("=", "").trim();
-        if (numericPart.length() <= 1) {
-            return Ex2Utils.ERR; // אם אין מספיק תווים
+    @Override
+    public int getY() {
+        if (!isValid()) {
+            System.out.println("getY: invalid index, returning ERR"); // Debugging
+            return Ex2Utils.ERR;
         }
-        numericPart = numericPart.substring(1).trim(); // חילוץ המספר וניקוי רווחים נוספים
-            Integer result = Integer.parseInt(numericPart)-1;
-        return result;
-    } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
-        return Ex2Utils.ERR; // שגיאה בניתוח המספר
+        try {
+            String numericPart = index.substring(1).trim();
+            int y = Integer.parseInt(numericPart);
+            System.out.println("getY: " + y); // Debugging
+            return y;
+        } catch (NumberFormatException e) {
+            System.out.println("getY: exception while parsing row, returning ERR"); // Debugging
+            return Ex2Utils.ERR;
+        }
     }
-}
 
     @Override
     public String toString() {
-        if (!isValid()) {
+        if (this.getY() < 0 || this.getY() >= Ex2Utils.ABC.length) {
             return "null=";
         }
-        char col = Character.toUpperCase(index.charAt(0));
-        String numericPart = index.substring(1); // מחזיר את המספר אחרי האות
-        return col + numericPart;
+        //Ex2Utils.ABC[this.getY()] + this.getX()
+        return Ex2Utils.ABC[this.getX()] + this.getY();
     }
-
-
 
 }

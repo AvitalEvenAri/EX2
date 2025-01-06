@@ -5,10 +5,21 @@ public class SCell implements Cell {
     private String computedValue;  // הערך המחושב
     private int type;              // סוג התא (מספר, טקסט, נוסחה וכו')
     private int order;             // סדר החישוב עבור נוסחאות
+    private String cellAddress;
+    private CellEntry cellEntry;
 
     public SCell(String s) {
         setData(s);
     }
+
+    public void setCellEntry(CellEntry entry) {
+        this.cellEntry = entry;
+    }
+
+    public CellEntry getCellEntry() {
+        return cellEntry;
+    }
+
 
     @Override
     public int getOrder() {
@@ -20,11 +31,43 @@ public class SCell implements Cell {
         }
         return order;
     }
+    public void setCellAddress(String address) {
+        this.cellAddress = address;
+    }
+
+//    @Override
+//    public String toString() {
+//        if (computedValue != null) {
+//            return computedValue;
+//        } else if (line != null) {
+//            return line;
+//        } else {
+//            return "empty"; // ערך ברירת מחדל במקום null
+//        }
+//    }
+
+//    @Override
+//    public String toString() {
+//        if (cellAddress != null) {
+//            return cellAddress + "=";  // למשל "A0="
+//        }
+//        return getData();
+//    }
 
     @Override
     public String toString() {
-        return computedValue != null ? computedValue : line;
+        // אם יש CellEntry, יוצרים את הכתובת על פי x ו-y
+        if (cellEntry != null) {
+            // אנחנו מניחים ש-cellEntry מכיל את הכתובת בצורה של x, y
+            int x = cellEntry.getX(); // מחזיר את השורה
+            int y = cellEntry.getY(); // מחזיר את העמודה
+            return Ex2Utils.ABC[y] + x;  // המיזוג של העמודה והשורה
+        }
+        // אם אין CellEntry, מציגים את המידע שנמצא בנתונים
+        return getData();
     }
+
+
 
     @Override
     public void setData(String s) {

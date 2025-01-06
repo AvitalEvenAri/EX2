@@ -174,14 +174,20 @@ public class Ex2SheetTest {
         // בדיקת מחלקת CellEntry עם כתובת חוקית
         CellEntry entry = new CellEntry("B3");
         assertTrue(entry.isValid(), "כתובת B3 צריכה להיות חוקית");
-        assertEquals(1, entry.getX(), "X של B3 צריך להיות 1");
-        assertEquals(2, entry.getY(), "Y של B3 צריך להיות 2");
+        assertEquals(1, entry.getX(), "X של B3 צריך להיות 1 (עמודה B)");
+        assertEquals(3, entry.getY(), "Y של B3 צריך להיות 3 (שורה 3)");
 
-        // כתובת לא חוקית
-        CellEntry invalidEntry = new CellEntry("1A");
-        assertFalse(invalidEntry.isValid(), "כתובת 1A לא צריכה להיות חוקית");
-        assertEquals(Ex2Utils.ERR, invalidEntry.getX(), "X של כתובת לא חוקית צריך להיות Ex2Utils.ERR");
-        assertEquals(Ex2Utils.ERR, invalidEntry.getY(), "Y של כתובת לא חוקית צריך להיות Ex2Utils.ERR");
+        // בדיקה עבור כתובת חוקית אחרת
+        entry = new CellEntry("A0");
+        assertTrue(entry.isValid(), "כתובת A0 צריכה להיות חוקית");
+        assertEquals(0, entry.getX(), "X של A0 צריך להיות 0 (עמודה A)");
+        assertEquals(0, entry.getY(), "Y של A0 צריך להיות 0 (שורה 0)");
+
+        // בדיקה עבור כתובת קצה
+        entry = new CellEntry("Z99");
+        assertTrue(entry.isValid(), "כתובת Z99 צריכה להיות חוקית");
+        assertEquals(25, entry.getX(), "X של Z99 צריך להיות 25 (עמודה Z)");
+        assertEquals(99, entry.getY(), "Y של Z99 צריך להיות 99 (שורה 99)");
     }
 
 
@@ -322,4 +328,103 @@ public class Ex2SheetTest {
         assertEquals(-1, depths[1][1]);
         assertEquals(-1, depths[2][2]);
     }
+    @Test
+    public void testConstructorInitialization() {
+        Ex2Sheet sheet = new Ex2Sheet(3, 3);
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                Cell cell = sheet.get(i, j);
+                assertNotNull(cell, "Cell at (" + i + ", " + j + ") should not be null.");
+                assertEquals("", cell.getData(), "Cell at (" + i + ", " + j + ") should be initialized with an empty string.");
+            }
+        }
+    }
+    @Test
+    public void testConvertToIndex() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        assertEquals("A0", sheet.convertToIndex(0, 0), "convertToIndex(0, 0) should return A1");
+        assertEquals("B1", sheet.convertToIndex(1, 1), "convertToIndex(1, 1) should return B2");
+        assertEquals("E4", sheet.convertToIndex(4, 4), "convertToIndex(4, 4) should return E5");
+    }
+    @Test
+    public void testGetWithStringAddress() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "10");
+        assertEquals("10", sheet.get("A1").getData(), "get(A1) should return the cell with data 10");
+
+        sheet.set(4, 4, "=A1+5");
+        assertEquals("=A1+5", sheet.get("E5").getData(), "get(E5) should return the cell with formula =A1+5");
+    }
+    @Test
+    public void testValueAfterUpdates() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "5");
+        sheet.set(1, 1, "=A1+5"); // B2 תלוי ב-A1
+        assertEquals("10.00", sheet.value(1, 1), "Value of B2 should be 10.00 after setting A1=5");
+
+        sheet.set(0, 0, "10"); // שינוי ערך ב-A1
+        assertEquals("15.00", sheet.value(1, 1), "Value of B2 should update to 15.00 after updating A1 to 10");
+    }
+    @Test
+    public void testCyclicDependencyDetection() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "=B2"); // A1 תלוי ב-B2
+        sheet.set(1, 1, "=A1"); // B2 תלוי ב-A1
+
+        assertEquals("#CYCLE", sheet.value(0, 0), "Value of A1 should be #CYCLE due to circular dependency");
+        assertEquals("#CYCLE", sheet.value(1, 1), "Value of B2 should be #CYCLE due to circular dependency");
+    }
+    @Test
+    public void testSetTextCell() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "Hello");
+        assertEquals("Hello", sheet.value(0, 0), "Value of A1 should be Hello after setting it");
+    }
+    @Test
+    public void testSetValidFormulaCell() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "10");
+        sheet.set(1, 1, "=A1+5");
+        assertEquals("15.00", sheet.value(1, 1), "Value of B2 should be 15.00 after setting A1=10 and B2=A1+5");
+    }
+    @Test
+    public void testDependentCellUpdate() {
+        Ex2Sheet sheet = new Ex2Sheet(5, 5);
+
+        sheet.set(0, 0, "5");
+        sheet.set(1, 1, "=A1*2");
+
+        assertEquals("10.00", sheet.value(1, 1), "Value of B2 should be 10.00 after setting A1=5");
+
+        sheet.set(0, 0, "7");
+        assertEquals("14.00", sheet.value(1, 1), "Value of B2 should update to 14.00 after updating A1 to 7");
+    }
+    @Test
+    public void testCellClick() {
+        Ex2Sheet sheet = new Ex2Sheet(10, 10);
+
+        // הכנסי ערך לתא
+        sheet.set(0, 0, "Hello");
+
+        // וודאי שהערך מופיע כהלכה
+        Cell cell = sheet.get(0, 0);
+        assertNotNull(cell, "Cell should not be null");
+        assertEquals("Hello", cell.getData(), "Cell data should be 'Hello'");
+
+        // בדקי ייצוג אינדקסי
+        String index = sheet.convertToIndex(0, 0);
+        assertEquals("A0", index, "Index should be A0");
+
+        // בדקי קריאה דרך GUI או דרך ה"בחירה"
+        System.out.println("Clicked cell: " + cell.toString());
+    }
+
+
 }

@@ -161,7 +161,7 @@ public class Spreadsheet1 {
         return depths;
     }
 
-// Converts row and column indices to a cell address (e.g., "A1")
+    // Converts row and column indices to a cell address (e.g., "A1")
     public String getAddress(int row, int col) {
         char column = (char) ('A' + col);
         return String.valueOf(column) + row;

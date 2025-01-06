@@ -66,6 +66,7 @@ public class CellEntryTest {
         CellEntry cell = new CellEntry("A5");
         assertEquals("A5", cell.toString(), "toString should return the original index");
     }
+
     @Test
     public void testValidIndexSingleRowZero() {
         CellEntry cell = new CellEntry("A0");
@@ -128,6 +129,14 @@ public class CellEntryTest {
         assertFalse(cell.isValid(), "AA1 should be an invalid index (column out of bounds)");
         assertEquals(Ex2Utils.ERR, cell.getX(), "Invalid index should return ERR for X");
         assertEquals(Ex2Utils.ERR, cell.getY(), "Invalid index should return ERR for Y");
+    }
+
+
+    @Test
+    public void testToStringInvalid() {
+        CellEntry cell = new CellEntry("1A");
+        assertFalse(cell.isValid(), "1A should be invalid");
+        assertEquals("null=", cell.toString(), "toString should return null=");
     }
 
 }
