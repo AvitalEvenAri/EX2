@@ -239,6 +239,9 @@ public class SCell implements Cell {
     }
 
     public boolean isNumber(String text) {
+        if (text.startsWith("-")) {
+            text = text.substring(1);
+        }
         try {
             Double.parseDouble(text);
             return true;
@@ -247,7 +250,18 @@ public class SCell implements Cell {
         }
     }
 
+//    public boolean isNumber(String text) {
+//        try {
+//            Double.parseDouble(text);
+//            return true;
+//        } catch (NumberFormatException e) {
+//            return false;
+//        }
+//    }
+
     public boolean isText(String text) {
         return text != null && !text.isEmpty() && !isNumber(text) && !text.startsWith("=");
     }
 }
+
+

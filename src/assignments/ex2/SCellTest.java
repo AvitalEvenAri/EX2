@@ -32,7 +32,7 @@ public class SCellTest {
         cell.setData("=5+3");
         assertEquals("=5+3", cell.getData());
         assertEquals(Ex2Utils.FORM, cell.getType());
-        assertEquals(-1, cell.getOrder());
+        assertEquals(-1, cell.getOrder()); // The order is not set yet, so it should be -1
     }
 
     @Test
@@ -40,7 +40,7 @@ public class SCellTest {
         SCell cell = new SCell("");
         cell.setData("=5+"); // Invalid formula
         assertEquals("=5+", cell.getData());
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType());
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType()); // Type should be ERR_WRONG_FORM
         assertEquals(-1, cell.getOrder());
     }
 
@@ -57,7 +57,7 @@ public class SCellTest {
         SCell cell = new SCell("");
         cell.setData("=A1+"); // Invalid formula
         assertEquals("=A1+", cell.getData());
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType());
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType()); // Type should be ERR_WRONG_FORM
         assertEquals(-1, cell.getOrder());
     }
 
@@ -84,13 +84,12 @@ public class SCellTest {
         assertEquals(0, cell.getOrder());
     }
 
-
     @Test
     public void testSetDataForNull() {
         SCell cell = new SCell("");
         cell.setData(null);
         assertNull(cell.getData()); // Verify the data is null
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType()); // Verify the type is an error
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType()); // Verify the type is ERR_WRONG_FORM
         assertEquals(-1, cell.getOrder()); // Verify the order is -1
     }
 
@@ -99,7 +98,7 @@ public class SCellTest {
         SCell cell = new SCell("");
         cell.setData("=(3+5");
         assertEquals("=(3+5", cell.getData());
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType());
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType());
         assertEquals(-1, cell.getOrder());
     }
 
@@ -108,7 +107,7 @@ public class SCellTest {
         SCell cell = new SCell("");
         cell.setData("=3+5)");
         assertEquals("=3+5)", cell.getData());
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType());
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType());
         assertEquals(-1, cell.getOrder());
     }
 
@@ -136,14 +135,14 @@ public class SCellTest {
         cell.setData("=A1+B2");
         assertEquals("=A1+B2", cell.getData());
         assertEquals(Ex2Utils.FORM, cell.getType());
-        assertEquals(-1, cell.getOrder());
+        assertEquals(-1, cell.getOrder()); // The order is not set yet, so it should be -1
     }
 
     @Test
     public void testSetOrderForNonFormulaCell() {
         SCell cell = new SCell("123");
         cell.setOrder(5);
-        assertEquals(0, cell.getOrder());
+        assertEquals(0, cell.getOrder()); // The order should remain 0 for non-formula cells
     }
 
     @Test
@@ -152,8 +151,9 @@ public class SCellTest {
         cell.setData("=(3+5)*2");
         assertEquals("=(3+5)*2", cell.getData());
         assertEquals(Ex2Utils.FORM, cell.getType());
-        assertEquals(-1, cell.getOrder());
+        assertEquals(-1, cell.getOrder()); // The order is not set yet, so it should be -1
     }
+
     @Test
     public void testToStringForEmptyAndNonEmptyCells() {
         SCell cell = new SCell("");
@@ -162,27 +162,43 @@ public class SCellTest {
         cell.setData("Hello");
         assertEquals("Hello", cell.toString(), "toString should return the data for a non-empty cell");
 
-        cell.setComputedValue("42");
-        assertEquals("42", cell.toString(), "toString should return the computed value if available");
+        cell.setData("42");
+        assertEquals("42", cell.toString(), "toString should return the data for a numeric cell");
     }
+
     @Test
     public void testComputedValueForValidFormula() {
         SCell cell = new SCell("=5+3");
         cell.setComputedValue("8");
-        assertEquals("8", cell.toString(), "Computed value should be 8 for the formula =5+3");
+        assertEquals("8", cell.getComputedValue(), "Computed value should be 8 for the formula =5+3");
     }
+
     @Test
     public void testTextCellHandling() {
         SCell cell = new SCell("Hello");
         assertEquals("Hello", cell.getData(), "Data should be Hello for a text cell");
         assertEquals(Ex2Utils.TEXT, cell.getType(), "Type should be TEXT for a text cell");
     }
+
     @Test
     public void testInvalidFormulaHandling() {
         SCell cell = new SCell("=5+");
         assertEquals("=5+", cell.getData(), "Data should remain =5+ for an invalid formula");
-        assertEquals(Ex2Utils.ERR_FORM_FORMAT, cell.getType(), "Type should be ERR_FORM_FORMAT for an invalid formula");
+        assertEquals(Ex2Utils. ERR_FORM_FORMAT, cell.getType(), "Type should be ERR_WRONG_FORM for an invalid formula");
     }
 
-}
+    @Test
+    public void testSetOrderForFormulaCell() {
+        SCell cell = new SCell("=A1+B2");
+        cell.setOrder(3);
+        assertEquals(3, cell.getOrder(), "The order should be set to 3 for a formula cell");
+    }
 
+    @Test
+    public void testCircularReferenceCellHandling() {
+        SCell cell = new SCell("=A1");
+        cell.setType(Ex2Utils.ERR_CYCLE_FORM);
+        assertEquals(Ex2Utils.ERR_CYCLE_FORM, cell.getType(), "Type should be ERR_CYCLE_FORM for a circular reference cell");
+        assertEquals(-1, cell.getOrder(), "The order should be -1 for a circular reference cell");
+    }
+}

@@ -137,16 +137,24 @@ public class Ex2Sheet implements Sheet {
                 .filter(s -> !s.isEmpty())
                 .toArray(String[]::new);
 
+        // בדיקה אם הנוסחה מתחילה במינוס ומצרף את המינוס למספר הבא אם קיים
+        if (tokens.length > 1 && tokens[0].equals("-") && isNumber(tokens[1])) {
+            tokens[1] = "-" + tokens[1];
+            tokens = Arrays.copyOfRange(tokens, 1, tokens.length);
+        }
+
         // אם יש רק טוקן אחד, זה יכול להיות מספר או תא
         if (tokens.length == 1) {
             String token = tokens[0];
+            double value;
             if (isValidCellAddress(token)) {
                 int[] coords = parseAddress(token);
                 String cellValue = eval(coords[0], coords[1]);
-                return Double.parseDouble(cellValue);
+                value = Double.parseDouble(cellValue);
             } else {
-                return Double.parseDouble(token);
+                value = Double.parseDouble(token);
             }
+            return value;
         }
 
         // מחפש את האופרטור בעל העדיפות הנמוכה ביותר מחוץ לסוגריים
@@ -194,6 +202,7 @@ public class Ex2Sheet implements Sheet {
 
         throw new IllegalArgumentException("Invalid formula: " + Arrays.toString(tokens));
     }
+
     private double applyOperator(double a, double b, char operator) {
         switch (operator) {
             case '+':
@@ -209,6 +218,16 @@ public class Ex2Sheet implements Sheet {
                 throw new IllegalArgumentException("Invalid operator: " + operator);
         }
     }
+
+    private boolean isNumber(String text) {
+        try {
+            Double.parseDouble(text);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
 
 
     public void eval() {
