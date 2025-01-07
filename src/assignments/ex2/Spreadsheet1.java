@@ -4,15 +4,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Spreadsheet1 {
-    private final int rows;
-    private final int cols;
-    private final Cell1[][] cells;
+    private final int rows; // Number of rows in the spreadsheet
+    private final int cols; // Number of columns in the spreadsheet
+    private final Cell1[][] cells; // 2D array to store cells
 
     // Constructor for the spreadsheet
     public Spreadsheet1(int rows, int cols) {
-        this.rows = rows;
-        this.cols = cols;
-        this.cells = new Cell1[rows][cols];
+        this.rows = rows; // Initialize rows
+        this.cols = cols; // Initialize columns
+        this.cells = new Cell1[rows][cols]; // Initialize the 2D array of cells
 
         // Initialize all cells as empty
         for (int i = 0; i < rows; i++) {
@@ -21,28 +21,35 @@ public class Spreadsheet1 {
             }
         }
     }
+
+    // Get the cell at the specified coordinates
     public Cell1 get(int x, int y) {
-        String address = getAddress(x, y);
-        return getCell(address);
+        String address = getAddress(x, y); // Convert coordinates to address
+        return getCell(address); // Retrieve the cell by address
     }
 
+    // Set the cell at the specified coordinates
     public void set(int x, int y, Cell1 c) {
-        String address = getAddress(x, y);
-        setCell(address, c);
+        String address = getAddress(x, y); // Convert coordinates to address
+        setCell(address, c); // Set the cell by address
     }
 
+    // Get the number of columns
     public int width() {
         return cols;
     }
 
+    // Get the number of rows
     public int height() {
         return rows;
     }
 
+    // Get the column index from a cell address
     public int xCell(String c) {
         return parseAddress(c)[1]; // Column index
     }
 
+    // Get the row index from a cell address
     public int yCell(String c) {
         return parseAddress(c)[0]; // Row index
     }
@@ -52,27 +59,27 @@ public class Spreadsheet1 {
         if (address == null || address.length() < 2) {
             throw new IllegalArgumentException("Invalid cell address: " + address);
         }
-        char columnChar = Character.toUpperCase(address.charAt(0));
+        char columnChar = Character.toUpperCase(address.charAt(0)); // Get the column character
         if (columnChar < 'A' || columnChar > 'J') { // Columns A-J
             throw new IllegalArgumentException("Invalid column in address: " + address);
         }
-        int column = columnChar - 'A';
+        int column = columnChar - 'A'; // Convert column character to index
         int row;
         try {
-            row = Integer.parseInt(address.substring(1));
+            row = Integer.parseInt(address.substring(1)); // Convert row part to integer
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Invalid row in address: " + address);
         }
         if (row < 0 || row >= 100) { // Rows 0-99
             throw new IllegalArgumentException("Row out of bounds: " + address);
         }
-        return new int[]{row, column};
+        return new int[]{row, column}; // Return row and column indices
     }
 
     // Retrieves a cell by its address
     public Cell1 getCell(String address) {
-        int[] indices = parseAddress(address);
-        return cells[indices[0]][indices[1]];
+        int[] indices = parseAddress(address); // Parse the address to get indices
+        return cells[indices[0]][indices[1]]; // Return the cell at the specified indices
     }
 
     // Sets the content of a cell after validating its address and content
@@ -81,10 +88,10 @@ public class Spreadsheet1 {
             throw new IllegalArgumentException("Invalid cell address: " + address);
         }
 
-        String cellInfo = cell.getCell_info();
+        String cellInfo = cell.getCell_info(); // Get the cell content
         if (!cell.isNumber(cellInfo) && !cell.isText(cellInfo)) {
             if (cell.isForm(cellInfo)) {
-                String formula = cellInfo.substring(1).trim();
+                String formula = cellInfo.substring(1).trim(); // Extract the formula
                 if (!cell.parseFormula(formula)) {
                     throw new IllegalArgumentException("Invalid formula: " + cellInfo);
                 }
@@ -93,8 +100,8 @@ public class Spreadsheet1 {
             }
         }
 
-        int[] indices = parseAddress(address);
-        cells[indices[0]][indices[1]] = cell;
+        int[] indices = parseAddress(address); // Parse the address to get indices
+        cells[indices[0]][indices[1]] = cell; // Set the cell at the specified indices
     }
 
     // Computes the depth of a specific cell recursively
@@ -107,35 +114,35 @@ public class Spreadsheet1 {
             return -1; // Circular dependency detected
         }
 
-        visited.add(address);
+        visited.add(address); // Mark the cell as visited
 
-        Cell1 cell = getCell(address);
-        String cellInfo = cell.getCell_info();
+        Cell1 cell = getCell(address); // Get the cell
+        String cellInfo = cell.getCell_info(); // Get the cell content
 
         if (!cell.isForm(cellInfo)) {
             visited.remove(address);
             return 0; // Non-formula cells have depth 0
         }
 
-        String formula = cellInfo.substring(1).trim();
+        String formula = cellInfo.substring(1).trim(); // Extract the formula
         int maxDepth = 0;
 
-        int operatorIndex = cell.findLowestPriorityOperator(formula);
+        int operatorIndex = cell.findLowestPriorityOperator(formula); // Find the operator in the formula
         if (operatorIndex != -1) {
-            String left = formula.substring(0, operatorIndex).trim();
-            String right = formula.substring(operatorIndex + 1).trim();
+            String left = formula.substring(0, operatorIndex).trim(); // Left part of the formula
+            String right = formula.substring(operatorIndex + 1).trim(); // Right part of the formula
 
-            int leftDepth = cell.isValidCell(left) ? computeDepth(left, visited) : 0;
-            int rightDepth = cell.isValidCell(right) ? computeDepth(right, visited) : 0;
+            int leftDepth = cell.isValidCell(left) ? computeDepth(left, visited) : 0; // Compute depth of left part
+            int rightDepth = cell.isValidCell(right) ? computeDepth(right, visited) : 0; // Compute depth of right part
 
             if (leftDepth == -1 || rightDepth == -1) {
                 visited.remove(address);
                 return -1; // Circular dependency detected
             }
 
-            maxDepth = Math.max(leftDepth, rightDepth);
+            maxDepth = Math.max(leftDepth, rightDepth); // Get the maximum depth
         } else if (cell.isValidCell(formula)) {
-            maxDepth = computeDepth(formula, visited);
+            maxDepth = computeDepth(formula, visited); // Compute depth of the formula
             if (maxDepth == -1) {
                 visited.remove(address);
                 return -1; // Circular dependency detected
@@ -148,33 +155,32 @@ public class Spreadsheet1 {
 
     // Computes the depth of all cells in the spreadsheet
     public int[][] depth() {
-        int[][] depths = new int[rows][cols];
+        int[][] depths = new int[rows][cols]; // Initialize the depths array
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                String address = getAddress(i, j);
-                Set<String> visited = new HashSet<>();
-                depths[i][j] = computeDepth(address, visited);
+                String address = getAddress(i, j); // Get the address of the cell
+                Set<String> visited = new HashSet<>(); // Initialize the visited set
+                depths[i][j] = computeDepth(address, visited); // Compute the depth of the cell
             }
         }
 
-        return depths;
+        return depths; // Return the depths array
     }
 
     // Converts row and column indices to a cell address (e.g., "A1")
     public String getAddress(int row, int col) {
-        char column = (char) ('A' + col);
-        return String.valueOf(column) + row;
+        char column = (char) ('A' + col); // Convert column index to character
+        return String.valueOf(column) + row; // Return the cell address
     }
-
 
     // Validates if a cell address is within the spreadsheet bounds
     public boolean isValidCellAddress(String address) {
         try {
-            int[] indices = parseAddress(address);
-            return indices[0] >= 0 && indices[0] < rows && indices[1] >= 0 && indices[1] < cols;
+            int[] indices = parseAddress(address); // Parse the address to get indices
+            return indices[0] >= 0 && indices[0] < rows && indices[1] >= 0 && indices[1] < cols; // Check if indices are within bounds
         } catch (IllegalArgumentException e) {
-            return false;
+            return false; // Invalid address
         }
     }
 
@@ -184,29 +190,29 @@ public class Spreadsheet1 {
             throw new IllegalArgumentException("Invalid cell coordinates: (" + x + ", " + y + ")");
         }
 
-        Cell1 cell = cells[x][y];
-        String cellInfo = cell.getCell_info();
+        Cell1 cell = cells[x][y]; // Get the cell
+        String cellInfo = cell.getCell_info(); // Get the cell content
 
         if (cellInfo == null || cellInfo.isEmpty()) {
             return "";
         }
 
         if (cell.isNumber(cellInfo)) {
-            return cellInfo;
+            return cellInfo; // Return the number
         }
 
         if (cell.isText(cellInfo)) {
-            return cellInfo;
+            return cellInfo; // Return the text
         }
 
         if (cell.isForm(cellInfo)) {
-            String address = getAddress(x, y);
-            Set<String> visited = new HashSet<>();
+            String address = getAddress(x, y); // Get the address of the cell
+            Set<String> visited = new HashSet<>(); // Initialize the visited set
             if (computeDepth(address, visited) == -1) {
                 throw new IllegalArgumentException("Cyclic dependency detected in formula: " + cellInfo);
             }
 
-            return evaluateFormula(cellInfo, new HashSet<>());
+            return evaluateFormula(cellInfo, new HashSet<>()); // Evaluate the formula
         }
 
         throw new IllegalArgumentException("Invalid cell content: " + cellInfo);
@@ -214,29 +220,29 @@ public class Spreadsheet1 {
 
     // Evaluates all cells in the spreadsheet and returns the results
     public String[][] evalAll() {
-        String[][] result = new String[rows][cols];
+        String[][] result = new String[rows][cols]; // Initialize the result array
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 try {
-                    String address = getAddress(i, j);
-                    Set<String> visited = new HashSet<>();
+                    String address = getAddress(i, j); // Get the address of the cell
+                    Set<String> visited = new HashSet<>(); // Initialize the visited set
                     if (computeDepth(address, visited) == -1) {
-                        result[i][j] = "ERR_CYCL";
+                        result[i][j] = "ERR_CYCL"; // Circular dependency detected
                     } else {
-                        result[i][j] = eval(i, j);
+                        result[i][j] = eval(i, j); // Evaluate the cell
                     }
                 } catch (IllegalArgumentException e) {
                     if (e.getMessage().contains("Circular reference")) {
-                        result[i][j] = "ERR_CYCL";
+                        result[i][j] = "ERR_CYCL"; // Circular reference error
                     } else {
-                        result[i][j] = "#ERROR";
+                        result[i][j] = "#ERROR"; // General error
                     }
                 }
             }
         }
 
-        return result;
+        return result; // Return the evaluation results
     }
 
     // Evaluates a formula and returns the result
@@ -245,39 +251,39 @@ public class Spreadsheet1 {
             throw new IllegalArgumentException("Invalid formula format: " + formula);
         }
 
-        String expr = formula.substring(1).trim();
+        String expr = formula.substring(1).trim(); // Remove the '=' and trim spaces
 
         if (new Cell1().isNumber(expr)) {
-            double value = Double.parseDouble(expr);
-            return formatNumber(value);
+            double value = Double.parseDouble(expr); // Parse the number
+            return formatNumber(value); // Format and return the number
         }
 
         if (new Cell1().isValidCell(expr)) {
             if (visited.contains(expr)) {
                 throw new IllegalArgumentException("Circular reference detected");
             }
-            visited.add(expr);
-            int[] indices = parseAddress(expr);
-            return eval(indices[0], indices[1]);
+            visited.add(expr); // Mark the cell as visited
+            int[] indices = parseAddress(expr); // Parse the address to get indices
+            return eval(indices[0], indices[1]); // Evaluate the cell
         }
 
         if (expr.startsWith("(") && expr.endsWith(")")) {
-            String innerExpr = expr.substring(1, expr.length() - 1).trim();
-            return evaluateFormula("=" + innerExpr, visited);
+            String innerExpr = expr.substring(1, expr.length() - 1).trim(); // Extract the inner expression
+            return evaluateFormula("=" + innerExpr, visited); // Evaluate the inner expression
         }
 
         Cell1 cell = new Cell1();
-        int operatorIndex = cell.findLowestPriorityOperator(expr);
+        int operatorIndex = cell.findLowestPriorityOperator(expr); // Find the operator in the expression
         if (operatorIndex != -1) {
-            String leftPart = expr.substring(0, operatorIndex).trim();
-            String rightPart = expr.substring(operatorIndex + 1).trim();
-            char operator = expr.charAt(operatorIndex);
+            String leftPart = expr.substring(0, operatorIndex).trim(); // Left part of the expression
+            String rightPart = expr.substring(operatorIndex + 1).trim(); // Right part of the expression
+            char operator = expr.charAt(operatorIndex); // Operator
 
-            double leftValue = parseValue(leftPart, visited);
-            double rightValue = parseValue(rightPart, visited);
+            double leftValue = parseValue(leftPart, visited); // Parse the left value
+            double rightValue = parseValue(rightPart, visited); // Parse the right value
 
-            double result = performOperation(leftValue, rightValue, operator);
-            return formatNumber(result);
+            double result = performOperation(leftValue, rightValue, operator); // Perform the operation
+            return formatNumber(result); // Format and return the result
         }
 
         throw new IllegalArgumentException("Invalid formula expression: " + expr);
@@ -286,18 +292,18 @@ public class Spreadsheet1 {
     // Parses and evaluates a value from a formula expression
     public double parseValue(String expr, Set<String> visited) {
         if (new Cell1().isNumber(expr)) {
-            return Double.parseDouble(expr);
+            return Double.parseDouble(expr); // Parse and return the number
         }
         if (new Cell1().isValidCell(expr)) {
             if (visited.contains(expr)) {
                 throw new IllegalArgumentException("Circular reference detected");
             }
-            visited.add(expr);
-            int[] indices = parseAddress(expr);
-            String result = eval(indices[0], indices[1]);
-            return Double.parseDouble(result);
+            visited.add(expr); // Mark the cell as visited
+            int[] indices = parseAddress(expr); // Parse the address to get indices
+            String result = eval(indices[0], indices[1]); // Evaluate the cell
+            return Double.parseDouble(result); // Parse and return the result
         }
-        return Double.parseDouble(evaluateFormula("=" + expr, visited));
+        return Double.parseDouble(evaluateFormula("=" + expr, visited)); // Evaluate the formula and return the result
     }
 
     // Performs arithmetic operations based on the operator
@@ -319,5 +325,4 @@ public class Spreadsheet1 {
         String formatted = String.format("%.1f", number);
         return formatted.endsWith(".0") ? formatted : String.format("%.1f", number);
     }
-
 }

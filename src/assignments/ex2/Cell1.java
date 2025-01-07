@@ -1,253 +1,227 @@
 package assignments.ex2;
 
+/**
+ * Represents a cell in a spreadsheet.
+ * This class provides functionality to validate formulas, evaluate expressions,
+ * and determine whether text is valid for a cell.
+ */
 public class Cell1 {
     private String cell_info;
 
+    /**
+     * Constructor to initialize a cell with information.
+     * @param cell_info the information to set for the cell.
+     */
     public Cell1(String cell_info) {
         this.cell_info = cell_info;
     }
 
+    /**
+     * Default constructor for an empty cell.
+     */
     public Cell1() {
     }
 
+    /**
+     * Retrieves the cell information.
+     * @return the cell information.
+     */
     public String getCell_info() {
         return cell_info;
     }
 
+    /**
+     * Sets the cell information.
+     * @param cell_info the information to set for the cell.
+     */
     public void setCell_info(String cell_info) {
         this.cell_info = cell_info;
     }
 
-
-    // This function checks if the input string is a valid formula
+    /**
+     * Checks if the input string is a valid formula.
+     * @param text the string to validate.
+     * @return true if the string is a valid formula, false otherwise.
+     */
     public boolean isForm(String text) {
         if (text == null || text.isEmpty() || !text.startsWith("=")) {
             return false; // The formula must start with "=" and not be empty
         }
 
-        // Remove the "=" and clean up spaces
-        String formula = text.substring(1).trim();
+        String formula = text.substring(1).trim(); // Remove the "=" and clean up spaces
 
-        // Check if the formula is a valid number
-        if (isNumber(formula)) {
-            return true; // Formulas like "=5" are valid
-        }
+        if (isNumber(formula)) return true; // Formulas like "=5" are valid
+        if (isValidCell(formula)) return true; // Formulas like "=A1" are valid
+        if (!areParenthesesBalanced(formula)) return false; // Parentheses must be balanced
 
-        // Check if the formula is a valid cell reference
-        if (isValidCell(formula)) {
-            return true; // Formulas like "=A1" are valid
-        }
-
-        // Check if parentheses are balanced
-        if (!areParenthesesBalanced(formula)) {
-            return false; // Return false if parentheses are not balanced
-        }
-
-        // Try to analyze the formula
         try {
             return parseFormula(formula); // Start parsing the formula
         } catch (IllegalArgumentException e) {
-            return false; // If there's an error, the formula is invalid
+            return false; // Invalid formula
         }
     }
 
-    // This function analyzes the formula recursively
+    /**
+     * Parses and validates a formula recursively.
+     * @param formula the formula to parse.
+     * @return true if the formula is valid, false otherwise.
+     */
     public boolean parseFormula(String formula) {
-        formula = formula.trim(); // Remove extra spaces
+        formula = formula.trim();
 
-        // If the formula is just a number
-        if (isNumber(formula)) {
-            return true; // Numbers are valid formulas
-        }
+        if (isNumber(formula)) return true; // Numbers are valid
+        if (isValidCell(formula)) return true; // Cell references are valid
 
-        // If the formula is a valid cell (e.g., A1)
-        if (isValidCell(formula)) {
-            return true; // Cells like A1 are valid formulas
-        }
-
-        // If the formula is wrapped in parentheses
         if (formula.startsWith("(") && formula.endsWith(")")) {
             if (isMatchingParenthesis(formula, 0, formula.length() - 1)) {
-                // Check the content inside the parentheses
-                return parseFormula(formula.substring(1, formula.length() - 1));
+                return parseFormula(formula.substring(1, formula.length() - 1)); // Validate inner formula
             }
         }
 
-        // Find the operator with the lowest priority (like + or -)
         int operatorIndex = findLowestPriorityOperator(formula);
         if (operatorIndex != -1) {
-            // Split the formula into left and right parts
             String left = formula.substring(0, operatorIndex).trim();
             String right = formula.substring(operatorIndex + 1).trim();
-            // Check both parts of the formula
             return parseFormula(left) && parseFormula(right);
         }
 
-        return false; // If no pattern matches, it's not a valid formula
+        return false; // No valid pattern matched
     }
 
-    // This function finds the operator with the lowest priority
+    /**
+     * Finds the operator with the lowest priority in a formula.
+     * @param text the formula to analyze.
+     * @return the index of the operator with the lowest priority.
+     */
     public int findLowestPriorityOperator(String text) {
-        int level = 0; // Tracks the depth of parentheses
-        int lowestIndex = -1; // Where the operator is found
-        int lowestPriority = Integer.MAX_VALUE; // The current lowest priority
+        int level = 0;
+        int lowestIndex = -1;
+        int lowestPriority = Integer.MAX_VALUE;
 
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
 
-            if (c == '(') {
-                level++; // Inside parentheses
-            } else if (c == ')') {
-                level--; // Outside parentheses
-            } else if (level == 0) { // Only check outside parentheses
+            if (c == '(') level++;
+            else if (c == ')') level--;
+            else if (level == 0) { // Only consider operators outside parentheses
                 int priority = getOperatorPriority(c);
                 if (priority <= lowestPriority) {
-                    lowestPriority = priority; // Update priority
-                    lowestIndex = i; // Update index
+                    lowestPriority = priority;
+                    lowestIndex = i;
                 }
             }
         }
 
-        return lowestIndex; // Return where the operator is
+        return lowestIndex;
     }
 
-    // This function assigns priorities to operators
+    /**
+     * Assigns priority to operators.
+     * @param c the operator character.
+     * @return the priority value.
+     */
     public int getOperatorPriority(char c) {
         switch (c) {
             case '+':
             case '-':
-                return 1; // + and - have lower priority
+                return 1;
             case '*':
             case '/':
-                return 2; // * and / have higher priority
+                return 2;
             default:
-                return Integer.MAX_VALUE; // Not an operator
+                return Integer.MAX_VALUE;
         }
     }
 
-    // This function checks if the text is a valid cell (e.g., A1)
+    /**
+     * Checks if a string is a valid cell reference (e.g., "A1").
+     * @param text the string to validate.
+     * @return true if valid, false otherwise.
+     */
     public boolean isValidCell(String text) {
-        if (text == null || text.length() < 2) return false; // Cells must not be null and must be at least two characters
-        // The first character must be a letter
+        if (text == null || text.length() < 2) return false;
         char column = Character.toUpperCase(text.charAt(0));
         if (column < 'A' || column > 'Z') return false;
 
         try {
             int row = Integer.parseInt(text.substring(1));
-            return row >= 0 && row < 100; // Rows must be between 0 and 99
+            return row >= 0 && row < 100; // Row range between 0 and 99
         } catch (NumberFormatException e) {
-            return false; // Not a valid number
+            return false;
         }
-
     }
 
-    // This function checks if parentheses are balanced
+    /**
+     * Checks if parentheses are balanced in a string.
+     * @param text the string to check.
+     * @return true if balanced, false otherwise.
+     */
     public boolean areParenthesesBalanced(String text) {
-        int balance = 0; // Keeps track of open and close parentheses
+        int balance = 0;
 
         for (char c : text.toCharArray()) {
-            if (c == '(') {
-                balance++; // Open parenthesis
-            } else if (c == ')') {
-                balance--; // Close parenthesis
-                if (balance < 0) return false; // Too many closing parentheses
+            if (c == '(') balance++;
+            else if (c == ')') {
+                balance--;
+                if (balance < 0) return false;
             }
         }
 
-        return balance == 0; // Return true if balanced
+        return balance == 0;
     }
 
-    // This function checks if the text is a valid number
+    /**
+     * Checks if a string represents a valid number.
+     * @param text the string to check.
+     * @return true if it's a number, false otherwise.
+     */
     public boolean isNumber(String text) {
         try {
-            Double.parseDouble(text); // Try to convert to a number
-            return true; // It's a valid number
+            Double.parseDouble(text);
+            return true;
         } catch (NumberFormatException e) {
-            return false; // Not a valid number
+            return false;
         }
     }
 
-    // This function checks if parentheses match
-    private boolean isMatchingParenthesis(String expr, int open, int close) {
-        int depth = 0; // Tracks parentheses depth
-
-        for (int i = open; i <= close; i++) {
-            if (expr.charAt(i) == '(') {
-                depth++; // Open parenthesis
-            } else if (expr.charAt(i) == ')') {
-                depth--; // Close parenthesis
-                if (depth == 0 && i != close) return false; // Mismatched
-            }
-        }
-
-        return depth == 0; // True if parentheses match
-    }
-
-
-    public boolean isText(String text) {
-        // Null or empty strings are not considered text
-        if (text == null || text.isEmpty()) {
-            return false;
-        }
-
-        // If the text starts with "=", it's not text
-        if (text.startsWith("=")) {
-            return false;
-        }
-
-        // Check if the string is a number
-        if (isNumber(text)) {
-            return false;
-        }
-
-        // If it's neither a number nor starts with "=", it's valid text
-        return true;
-    }
-
-
+    /**
+     * Validates and evaluates a formula.
+     * @param form the formula to evaluate.
+     * @return the result of the evaluation.
+     */
     public double eval(String form) {
-        // Step 1: Check if the formula is valid using isForm
-        if (!isForm(form)) {
-            throw new IllegalArgumentException("Invalid formula: " + form);
-        }
+        if (!isForm(form)) throw new IllegalArgumentException("Invalid formula: " + form);
 
-        // Step 2: Remove "=" and trim whitespace
         String formula = form.substring(1).trim();
 
-        // Step 3: Base case: Check if it's a number
-        if (isNumber(formula)) {
-            return Double.parseDouble(formula);
-        }
+        if (isNumber(formula)) return Double.parseDouble(formula);
+        if (isValidCell(formula)) throw new IllegalArgumentException("Cell references not supported");
 
-        // Step 4: Base case: Check if it's a valid cell reference
-        if (isValidCell(formula)) {
-            throw new IllegalArgumentException("Cell references are not supported in this implementation");
-        }
-
-        // Step 5: Handle parentheses
         if (formula.startsWith("(") && formula.endsWith(")")) {
             if (isMatchingParenthesis(formula, 0, formula.length() - 1)) {
-                // Evaluate the inner content
                 return eval("=" + formula.substring(1, formula.length() - 1));
             }
         }
 
-        // Step 6: Use the existing function to find the lowest priority operator
         int operatorIndex = findLowestPriorityOperator(formula);
         if (operatorIndex != -1) {
-            // Split the formula into left and right parts
             String left = formula.substring(0, operatorIndex).trim();
             String right = formula.substring(operatorIndex + 1).trim();
             char operator = formula.charAt(operatorIndex);
 
-            // Recursively evaluate both parts and perform the operation
             return calculate(eval("=" + left), eval("=" + right), operator);
         }
 
-        // If no valid operator found, throw an error
         throw new IllegalArgumentException("Invalid formula");
     }
 
+    /**
+     * Performs a calculation based on the operator and two operands.
+     * @param left the left operand.
+     * @param right the right operand.
+     * @param operator the operator.
+     * @return the result of the calculation.
+     */
     public double calculate(double left, double right, char operator) {
         switch (operator) {
             case '+': return left + right;
@@ -261,59 +235,35 @@ public class Cell1 {
         }
     }
 
+    /**
+     * Checks if parentheses match correctly.
+     * @param expr the string to check.
+     * @param open the index of the opening parenthesis.
+     * @param close the index of the closing parenthesis.
+     * @return true if parentheses match, false otherwise.
+     */
+    private boolean isMatchingParenthesis(String expr, int open, int close) {
+        int depth = 0;
 
+        for (int i = open; i <= close; i++) {
+            if (expr.charAt(i) == '(') depth++;
+            else if (expr.charAt(i) == ')') {
+                depth--;
+                if (depth == 0 && i != close) return false;
+            }
+        }
 
+        return depth == 0;
+    }
 
-
-
-
-
+    /**
+     * Checks if a string is valid text for a cell.
+     * @param text the string to validate.
+     * @return true if valid text, false otherwise.
+     */
+    public boolean isText(String text) {
+        if (text == null || text.isEmpty()) return false;
+        if (text.startsWith("=")) return false;
+        return !isNumber(text);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

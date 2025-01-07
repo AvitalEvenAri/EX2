@@ -1,73 +1,51 @@
 package assignments.ex2;
 
 public class SCell implements Cell {
-    private String line;           // המחרוזת המקורית
-    private String computedValue;  // הערך המחושב
-    private int type;              // סוג התא (מספר, טקסט, נוסחה וכו')
-    private int order;             // סדר החישוב עבור נוסחאות
+    private String line;           // Original string
+    private String computedValue;  // Computed value
+    private int type;              // Cell type (number, text, formula, etc.)
+    private int order;             // Calculation order for formulas
     private String cellAddress;
     private CellEntry cellEntry;
 
+    // Constructor for SCell
     public SCell(String s) {
-        setData(s);
+        setData(s); // Set the data for the cell
     }
 
+    // Set the CellEntry
     public void setCellEntry(CellEntry entry) {
         this.cellEntry = entry;
     }
 
+    // Get the CellEntry
     public CellEntry getCellEntry() {
         return cellEntry;
     }
 
-
     @Override
     public int getOrder() {
         if (type == Ex2Utils.TEXT || type == Ex2Utils.NUMBER) {
-            return 0;
+            return 0; // Text and number types have order 0
         }
         if (type == Ex2Utils.ERR_FORM_FORMAT || type == Ex2Utils.ERR_CYCLE_FORM) {
-            return -1;
+            return -1; // Error types have order -1
         }
-        return order;
+        return order; // Return the order for formulas
     }
-    public void setCellAddress(String address) {
-        this.cellAddress = address;
-    }
-
-//    @Override
-//    public String toString() {
-//        if (computedValue != null) {
-//            return computedValue;
-//        } else if (line != null) {
-//            return line;
-//        } else {
-//            return "empty"; // ערך ברירת מחדל במקום null
-//        }
-//    }
-
-//    @Override
-//    public String toString() {
-//        if (cellAddress != null) {
-//            return cellAddress + "=";  // למשל "A0="
-//        }
-//        return getData();
-//    }
 
     @Override
     public String toString() {
-        // אם יש CellEntry, יוצרים את הכתובת על פי x ו-y
+        // If there is a CellEntry, create the address based on x and y
         if (cellEntry != null) {
-            // אנחנו מניחים ש-cellEntry מכיל את הכתובת בצורה של x, y
-            int x = cellEntry.getX(); // מחזיר את השורה
-            int y = cellEntry.getY(); // מחזיר את העמודה
-            return Ex2Utils.ABC[y] + x;  // המיזוג של העמודה והשורה
+            // Assume cellEntry contains the address in the form of x, y
+            int x = cellEntry.getX(); // Get the row
+            int y = cellEntry.getY(); // Get the column
+            return Ex2Utils.ABC[y] + x;  // Combine column and row
         }
-        // אם אין CellEntry, מציגים את המידע שנמצא בנתונים
+        // If there is no CellEntry, display the data in the cell
         return getData();
     }
-
-
 
     @Override
     public void setData(String s) {
@@ -110,10 +88,12 @@ public class SCell implements Cell {
         }
     }
 
+    // Get the computed value
     public String getComputedValue() {
         return computedValue;
     }
 
+    // Set the computed value
     public void setComputedValue(String value) {
         this.computedValue = value;
     }
@@ -140,6 +120,7 @@ public class SCell implements Cell {
         }
     }
 
+    // Check if the text is a formula
     public boolean isForm(String text) {
         if (text == null || text.isEmpty() || !text.startsWith("=")) {
             return false;
@@ -148,6 +129,7 @@ public class SCell implements Cell {
         return isNumber(formula) || isValidCell(formula) || parseFormula(formula);
     }
 
+    // Parse the formula
     public boolean parseFormula(String formula) {
         formula = formula.trim();
 
@@ -175,6 +157,7 @@ public class SCell implements Cell {
         return false;
     }
 
+    // Find the lowest priority operator in the formula
     public int findLowestPriorityOperator(String text) {
         int level = 0;
         int lowestIndex = -1;
@@ -199,6 +182,7 @@ public class SCell implements Cell {
         return lowestIndex;
     }
 
+    // Get the priority of the operator
     private int getOperatorPriority(char c) {
         return switch (c) {
             case '+', '-' -> 1;
@@ -207,6 +191,7 @@ public class SCell implements Cell {
         };
     }
 
+    // Check if the parentheses in the expression are matching
     private boolean isMatchingParenthesis(String expr, int open, int close) {
         int depth = 0;
 
@@ -225,6 +210,7 @@ public class SCell implements Cell {
         return depth == 0;
     }
 
+    // Check if the text is a valid cell address
     public boolean isValidCell(String text) {
         if (text == null || text.length() < 2) return false;
         char column = Character.toUpperCase(text.charAt(0));
@@ -238,6 +224,7 @@ public class SCell implements Cell {
         }
     }
 
+    // Check if the text is a number
     public boolean isNumber(String text) {
         if (text.startsWith("-")) {
             text = text.substring(1);
@@ -250,15 +237,7 @@ public class SCell implements Cell {
         }
     }
 
-//    public boolean isNumber(String text) {
-//        try {
-//            Double.parseDouble(text);
-//            return true;
-//        } catch (NumberFormatException e) {
-//            return false;
-//        }
-//    }
-
+    // Check if the text is plain text
     public boolean isText(String text) {
         return text != null && !text.isEmpty() && !isNumber(text) && !text.startsWith("=");
     }

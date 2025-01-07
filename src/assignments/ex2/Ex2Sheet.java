@@ -4,75 +4,76 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 public class Ex2Sheet implements Sheet {
-    private SCell[][] table;
+    private SCell[][] table; // 2D array to store cells
 
+    // Constructor with dimensions
     public Ex2Sheet(int x, int y) {
-        table = new SCell[x][y];
+        table = new SCell[x][y]; // Initialize the 2D array of cells
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                table[i][j] = new SCell("");
+                table[i][j] = new SCell(Ex2Utils.EMPTY_CELL); // Initialize empty cells
             }
         }
         System.out.println("Initialized Ex2Sheet with dimensions: " + x + "x" + y);
-        eval();
+        eval(); // Evaluate the sheet
     }
 
+    // Default constructor
     public Ex2Sheet() {
-        this(Ex2Utils.WIDTH, Ex2Utils.HEIGHT);
+        this(Ex2Utils.WIDTH, Ex2Utils.HEIGHT); // Initialize with default dimensions
     }
 
     @Override
     public boolean isIn(int x, int y) {
-        boolean inBounds = x >= 0 && x < width() && y >= 0 && y < height();
+        boolean inBounds = x >= 0 && x < width() && y >= 0 && y < height(); // Check if coordinates are within bounds
         System.out.println("isIn(" + x + ", " + y + ") = " + inBounds);
-        return inBounds;
+        return inBounds; // Return the result
     }
 
     @Override
     public int width() {
-        return table.length;
+        return table.length; // Return the width of the sheet
     }
 
     @Override
     public int height() {
-        return table[0].length;
+        return table[0].length; // Return the height of the sheet
     }
 
     @Override
     public void set(int x, int y, String s) {
         if (!isIn(x, y)) {
-            throw new IllegalArgumentException("Coordinates out of bounds: (" + x + ", " + y + ")");
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if out of bounds
         }
         System.out.println("Setting cell (" + x + ", " + y + ") to value: " + s);
-        table[x][y].setData(s);
-        eval();
+        table[x][y].setData(s); // Set the data for the cell
+        eval(); // Evaluate the sheet
     }
 
     @Override
     public Cell get(int x, int y) {
         if (!isIn(x, y)) {
             System.out.println("get(" + x + ", " + y + ") = null (out of bounds)");
-            return null;
+            return null; // Return null if out of bounds
         }
-        String address = convertToIndex(x, y);
-        SCell cell = table[x][y];
-        cell.setCellEntry(new CellEntry(address));  // Update the CellEntry
+        String address = convertToIndex(x, y); // Convert coordinates to address
+        SCell cell = table[x][y]; // Get the cell
+        cell.setCellEntry(new CellEntry(address)); // Set the cell entry
         System.out.println("get(" + x + ", " + y + ") = Cell at address: " + address);
-        return cell;
+        return cell; // Return the cell
     }
 
     @Override
     public Cell get(String entry) {
         try {
-            int[] coords = parseAddress(entry);
+            int[] coords = parseAddress(entry); // Parse the address to get coordinates
             System.out.println("get(\"" + entry + "\") = Coordinates: " + Arrays.toString(coords));
-            return get(coords[0], coords[1]);
+            return get(coords[0], coords[1]); // Get the cell at the coordinates
         } catch (IllegalArgumentException e) {
             System.out.println("get(\"" + entry + "\") failed: " + e.getMessage());
-            return null;
+            return null; // Return null if parsing fails
         }
     }
 
@@ -80,84 +81,85 @@ public class Ex2Sheet implements Sheet {
     public String value(int x, int y) {
         if (!isIn(x, y)) {
             System.out.println("value(" + x + ", " + y + ") = EMPTY_CELL (out of bounds)");
-            return Ex2Utils.EMPTY_CELL;
+            return Ex2Utils.EMPTY_CELL; // Return empty cell if out of bounds
         }
-        SCell cell = table[x][y];
-        String computedValue = cell.getComputedValue();
-        String value = computedValue != null ? computedValue : cell.getData();
+        SCell cell = table[x][y]; // Get the cell
+        String computedValue = cell.getComputedValue(); // Get the computed value
+        String value = computedValue != null ? computedValue : cell.getData(); // Get the value
         System.out.println("value(" + x + ", " + y + ") = " + value);
-        return value;
+        return value; // Return the value
     }
 
     @Override
     public String eval(int x, int y) {
         if (!isIn(x, y)) {
-            throw new IllegalArgumentException("Coordinates out of bounds: (" + x + ", " + y + ")");
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if out of bounds
         }
 
-        SCell cell = table[x][y];
-        String data = cell.getData();
+        SCell cell = table[x][y]; // Get the cell
+        String data = cell.getData(); // Get the data
         System.out.println("Evaluating cell (" + x + ", " + y + ") with data: " + data);
 
         if (data == null || !data.startsWith("=")) {
             System.out.println("eval(" + x + ", " + y + ") = " + data + " (not a formula)");
-            return data;
+            return data; // Return data if not a formula
         }
 
         try {
-            String formula = data.substring(1).trim();
-            String[] tokens = formula.split("(?<=[-+*/()])|(?=[-+*/()])");
-            double result = evaluateFormula(tokens, new HashSet<>());
-            String formattedResult = String.format("%.2f", result);
+            String formula = data.substring(1).trim(); // Extract the formula
+            String[] tokens = formula.split("(?<=[-+*/()])|(?=[-+*/()])"); // Split the formula into tokens
+            double result = evaluateFormula(tokens, new HashSet<>()); // Evaluate the formula
+            String formattedResult = String.format("%.2f", result); // Format the result
             System.out.println("eval(" + x + ", " + y + ") = " + formattedResult);
-            return formattedResult;
+            return formattedResult; // Return the result
         } catch (Exception e) {
-            System.out.println("eval(" + x + ", " + y + ") = #ERROR (" + e.getMessage() + ")");
-            return "#ERROR";
+            System.out.println("eval(" + x + ", " + y + ") = " + Ex2Utils.ERR_FORM + " (" + e.getMessage() + ")");
+            return Ex2Utils.ERR_FORM; // Return error if evaluation fails
         }
     }
 
-
+    // Get the maximum depth in the depths array
     private int getMaxDepth(int[][] depths) {
         int max = 0;
         for (int[] row : depths) {
             for (int depth : row) {
-                if (depth != -1) { // מתעלמים ממעגלים (ציון -1)
-                    max = Math.max(max, depth);
+                if (depth != Ex2Utils.ERR_CYCLE_FORM) {
+                    max = Math.max(max, depth); // Update the maximum depth
                 }
             }
         }
         System.out.println("Max depth found: " + max);
-        return max;
+        return max; // Return the maximum depth
     }
+
+    // Evaluate the formula
     private double evaluateFormula(String[] tokens, Set<String> visited) {
-        // ניקוי טוקנים ריקים
         tokens = Arrays.stream(tokens)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .toArray(String[]::new);
+                .toArray(String[]::new); // Clean up the tokens
 
-        // בדיקה אם הנוסחה מתחילה במינוס ומצרף את המינוס למספר הבא אם קיים
         if (tokens.length > 1 && tokens[0].equals("-") && isNumber(tokens[1])) {
-            tokens[1] = "-" + tokens[1];
+            tokens[1] = "-" + tokens[1]; // Handle negative numbers
             tokens = Arrays.copyOfRange(tokens, 1, tokens.length);
         }
 
-        // אם יש רק טוקן אחד, זה יכול להיות מספר או תא
         if (tokens.length == 1) {
             String token = tokens[0];
             double value;
             if (isValidCellAddress(token)) {
-                int[] coords = parseAddress(token);
-                String cellValue = eval(coords[0], coords[1]);
-                value = Double.parseDouble(cellValue);
+                int[] coords = parseAddress(token); // Parse the address
+                String cellValue = eval(coords[0], coords[1]); // Evaluate the cell
+                if (cellValue.equals(Ex2Utils.ERR_FORM) || cellValue.equals(Ex2Utils.ERR_CYCLE)) {
+                    throw new IllegalArgumentException(cellValue); // Throw error if evaluation fails
+                }
+                value = Double.parseDouble(cellValue); // Parse the value
             } else {
-                value = Double.parseDouble(token);
+                value = Double.parseDouble(token); // Parse the value
             }
-            return value;
+            return value; // Return the value
         }
 
-        // מחפש את האופרטור בעל העדיפות הנמוכה ביותר מחוץ לסוגריים
         int lastOpIndex = -1;
         int minPriority = Integer.MAX_VALUE;
         int parenthesesCount = 0;
@@ -178,31 +180,30 @@ public class Ex2Sheet implements Sheet {
                 int priority = token.equals("+") || token.equals("-") ? 1 : 2;
                 if (priority <= minPriority) {
                     minPriority = priority;
-                    lastOpIndex = i;
+                    lastOpIndex = i; // Update the last operator index
                 }
             }
         }
 
-        // אם מצאנו אופרטור, מחלקים את הביטוי לחלקים
         if (lastOpIndex != -1) {
-            String[] leftTokens = Arrays.copyOfRange(tokens, 0, lastOpIndex);
-            String[] rightTokens = Arrays.copyOfRange(tokens, lastOpIndex + 1, tokens.length);
+            String[] leftTokens = Arrays.copyOfRange(tokens, 0, lastOpIndex); // Get the left tokens
+            String[] rightTokens = Arrays.copyOfRange(tokens, lastOpIndex + 1, tokens.length); // Get the right tokens
 
-            double leftValue = evaluateFormula(leftTokens, visited);
-            double rightValue = evaluateFormula(rightTokens, visited);
+            double leftValue = evaluateFormula(leftTokens, visited); // Evaluate the left tokens
+            double rightValue = evaluateFormula(rightTokens, visited); // Evaluate the right tokens
 
-            char operator = tokens[lastOpIndex].charAt(0);
-            return applyOperator(leftValue, rightValue, operator);
+            char operator = tokens[lastOpIndex].charAt(0); // Get the operator
+            return applyOperator(leftValue, rightValue, operator); // Apply the operator
         }
 
-        // אם יש סוגריים חיצוניים, מסיר אותם ומחשב את הביטוי הפנימי
         if (tokens[0].equals("(") && tokens[tokens.length - 1].equals(")")) {
-            return evaluateFormula(Arrays.copyOfRange(tokens, 1, tokens.length - 1), visited);
+            return evaluateFormula(Arrays.copyOfRange(tokens, 1, tokens.length - 1), visited); // Evaluate the inner expression
         }
 
-        throw new IllegalArgumentException("Invalid formula: " + Arrays.toString(tokens));
+        throw new IllegalArgumentException(Ex2Utils.ERR_FORM); // Throw error if evaluation fails
     }
 
+    // Apply the operator to the values
     private double applyOperator(double a, double b, char operator) {
         switch (operator) {
             case '+':
@@ -212,27 +213,27 @@ public class Ex2Sheet implements Sheet {
             case '*':
                 return a * b;
             case '/':
-                if (b == 0) throw new ArithmeticException("Division by zero");
+                if (b == 0) throw new ArithmeticException(Ex2Utils.ERR_FORM); // Handle division by zero
                 return a / b;
             default:
-                throw new IllegalArgumentException("Invalid operator: " + operator);
+                throw new IllegalArgumentException(Ex2Utils.ERR_FORM); // Throw error for unsupported operator
         }
     }
 
+    // Check if the text is a number
     private boolean isNumber(String text) {
         try {
-            Double.parseDouble(text);
+            Double.parseDouble(text); // Try to parse the text as a number
             return true;
         } catch (NumberFormatException e) {
-            return false;
+            return false; // Return false if parsing fails
         }
     }
 
-
-
+    // Evaluate the entire sheet
     public void eval() {
         System.out.println("Evaluating entire sheet...");
-        int[][] depths = depth();
+        int[][] depths = depth(); // Get the depths of all cells
 
         for (int d = 0; d <= getMaxDepth(depths); d++) {
             for (int i = 0; i < width(); i++) {
@@ -242,138 +243,130 @@ public class Ex2Sheet implements Sheet {
                         String data = cell.getData();
                         if (data != null && data.startsWith("=")) {
                             try {
-                                String value = eval(i, j);
-                                cell.setComputedValue(value);
+                                String value = eval(i, j); // Evaluate the cell
+                                cell.setComputedValue(value); // Set the computed value
                             } catch (Exception e) {
-                                cell.setComputedValue("#ERROR");
+                                cell.setComputedValue(Ex2Utils.ERR_FORM); // Set error if evaluation fails
                             }
                         } else {
-                            cell.setComputedValue(data);
+                            cell.setComputedValue(data); // Set the data as the computed value
                         }
-                    } else if (depths[i][j] == -1) {
-                        table[i][j].setComputedValue("#CYCLE");
+                    } else if (depths[i][j] == Ex2Utils.ERR_CYCLE_FORM) {
+                        table[i][j].setComputedValue(Ex2Utils.ERR_CYCLE); // Set cycle error
                     }
                 }
             }
         }
         System.out.println("Sheet evaluation complete.");
     }
-
     @Override
     public int[][] depth() {
-        int[][] depths = new int[width()][height()];
-        boolean[][] visited = new boolean[width()][height()];
+        int[][] depths = new int[width()][height()]; // Initialize the depths array
+        boolean[][] visited = new boolean[width()][height()]; // Initialize the visited array
 
         for (int x = 0; x < width(); x++) {
             for (int y = 0; y < height(); y++) {
-                depths[x][y] = computeDepth(x, y, depths, visited);
+                depths[x][y] = computeDepth(x, y, depths, visited); // Compute the depth of each cell
             }
         }
-        return depths;
+        return depths; // Return the depths array
     }
 
     private int computeDepth(int x, int y, int[][] depths, boolean[][] visited) {
         if (!isIn(x, y)) {
-            return -1;
+            return Ex2Utils.ERR_FORM_FORMAT; // Return error if out of bounds
         }
 
-        SCell cell = table[x][y];
-        String data = cell.getData();
+        SCell cell = table[x][y]; // Get the cell
+        String data = cell.getData(); // Get the data
 
         if (data == null || data.isEmpty() || !data.startsWith("=")) {
-            return 0;
+            return 0; // Return 0 if not a formula
         }
 
         if (visited[x][y]) {
-            return -1;
+            return Ex2Utils.ERR_CYCLE_FORM; // Return cycle error if already visited
         }
 
-        visited[x][y] = true;
-        String formula = data.substring(1).trim();
-        String[] tokens = formula.split("(?<=[-+*/()])|(?=[-+*/()])");
+        visited[x][y] = true; // Mark the cell as visited
+        String formula = data.substring(1).trim(); // Extract the formula
+        String[] tokens = formula.split("(?<=[-+*/()])|(?=[-+*/()])"); // Split the formula into tokens
         int maxDepth = 0;
 
         for (String token : tokens) {
             if (isValidCellAddress(token)) {
                 try {
-                    int[] coords = parseAddress(token);
-                    int depDepth = computeDepth(coords[0], coords[1], depths, visited);
-                    if (depDepth == -1) {
-                        return -1;
+                    int[] coords = parseAddress(token); // Parse the address
+                    int depDepth = computeDepth(coords[0], coords[1], depths, visited); // Compute the depth
+                    if (depDepth == Ex2Utils.ERR_CYCLE_FORM) {
+                        return Ex2Utils.ERR_CYCLE_FORM; // Return cycle error if detected
                     }
-                    maxDepth = Math.max(maxDepth, depDepth);
+                    maxDepth = Math.max(maxDepth, depDepth); // Update the maximum depth
                 } catch (IllegalArgumentException e) {
-                    return -1;
+                    return Ex2Utils.ERR_FORM_FORMAT; // Return error if parsing fails
                 }
             }
         }
 
-        visited[x][y] = false;
-        return maxDepth + 1;
+        visited[x][y] = false; // Unmark the cell as visited
+        return maxDepth + 1; // Return the depth
     }
 
     private boolean isValidCellAddress(String address) {
         try {
-            parseAddress(address);
+            parseAddress(address); // Try to parse the address
             return true;
         } catch (IllegalArgumentException e) {
-            return false;
+            return false; // Return false if parsing fails
         }
     }
 
     private int[] parseAddress(String address) {
         if (address == null || address.length() < 2) {
-            throw new IllegalArgumentException("Invalid cell address: " + address);
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if invalid
         }
 
-        char columnChar = Character.toUpperCase(address.charAt(0));
+        char columnChar = Character.toUpperCase(address.charAt(0)); // Get the column character
         if (columnChar < 'A' || columnChar > 'Z') {
-            throw new IllegalArgumentException("Invalid column in address: " + address);
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if out of range
         }
 
         try {
-            int row = Integer.parseInt(address.substring(1));
-            int col = columnChar - 'A';
+            int row = Integer.parseInt(address.substring(1)); // Parse the row
+            int col = columnChar - 'A'; // Convert column to index
 
             if (row < 0 || row >= height() || col < 0 || col >= width()) {
-                throw new IllegalArgumentException("Address out of bounds: " + address);
+                throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if out of bounds
             }
 
             System.out.println("parseAddress(\"" + address + "\") = [" + col + ", " + row + "]");
-            return new int[]{col, row};
+            return new int[]{col, row}; // Return the coordinates
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid row in address: " + address);
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if parsing fails
         }
     }
+
     public String convertToIndex(int x, int y) {
         if (!isIn(x, y)) {
             System.out.println("convertToIndex: Coordinates out of bounds: (" + x + ", " + y + ")");
-            throw new IllegalArgumentException("Coordinates out of bounds: (" + x + ", " + y + ")");
+            throw new IllegalArgumentException(String.valueOf(Ex2Utils.ERR_FORM_FORMAT)); // Throw error if out of bounds
         }
-        // כעת x מתייחס לשורה ו-y מתייחס לעמודה
-        char column = (char) ('A' + y); // ממיר את y לעמודה (אות באנגלית)
-        int row = x; // x הוא מספר השורה
-        String result = column + String.valueOf(row); // משרשר את השורה והעמודה ליצירת שם התא
-        System.out.println("convertToIndex(" + x + ", " + y + ") = " + result); // debug
-        return result;
+        char column = (char) ('A' + y); // Convert column index to character
+        int row = x; // Get the row
+        String result = column + String.valueOf(row); // Combine column and row
+        System.out.println("convertToIndex(" + x + ", " + y + ") = " + result);
+        return result; // Return the result
     }
-
-//    public String convertToIndex(int x, int y) {
-//        char column = (char) ('A' + x); // Translate x to column letter
-//        String index = column + String.valueOf(y); // Append y directly
-//        System.out.println("convertToIndex(" + x + ", " + y + ") = " + index);
-//        return index;
-//    }
 
     @Override
     public void save(String fileName) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write("I2CS ArielU: SpreadSheet (Ex2) assignment\n");
+            writer.write("I2CS ArielU: SpreadSheet (Ex2) assignment\n"); // Write the header
             for (int i = 0; i < width(); i++) {
                 for (int j = 0; j < height(); j++) {
-                    String data = table[i][j].getData();
+                    String data = table[i][j].getData(); // Get the data
                     if (data != null && !data.isEmpty()) {
-                        writer.write(i + "," + j + "," + data + "\n");
+                        writer.write(i + "," + j + "," + data + "\n"); // Write the data
                     }
                 }
             }
@@ -383,27 +376,26 @@ public class Ex2Sheet implements Sheet {
     @Override
     public void load(String fileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            reader.readLine(); // Skip header line
+            reader.readLine(); // Read the header
 
-            // Reset all cells
             for (int i = 0; i < width(); i++) {
                 for (int j = 0; j < height(); j++) {
-                    table[i][j] = new SCell("");
+                    table[i][j] = new SCell(Ex2Utils.EMPTY_CELL); // Initialize empty cells
                 }
             }
 
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", 3);
+                String[] parts = line.split(",", 3); // Split the line into parts
                 if (parts.length >= 3) {
-                    int x = Integer.parseInt(parts[0].trim());
-                    int y = Integer.parseInt(parts[1].trim());
-                    String data = parts[2].trim();
+                    int x = Integer.parseInt(parts[0].trim()); // Parse the x coordinate
+                    int y = Integer.parseInt(parts[1].trim()); // Parse the y coordinate
+                    String data = parts[2].trim(); // Get the data
                     if (isIn(x, y)) {
-                        set(x, y, data);
+                        set(x, y, data); // Set the data
                     }
                 }
             }
         }
     }
-}
+    }
