@@ -249,12 +249,7 @@ public class Spreadsheet1Test {
         assertTrue(exception.getMessage().contains("Invalid cell coordinates")); // Check if the exception message contains "Invalid cell coordinates"
     }
 
-    @Test
-    void testEvalFormulaReferencingInvalidCell() {
-        Spreadsheet1 spreadsheet = new Spreadsheet1(10, 10); // Create a new spreadsheet with dimensions 10x10
 
-        // Add your test logic here
-    }
 
     @Test
     void testSetCellInvalidAddress() {

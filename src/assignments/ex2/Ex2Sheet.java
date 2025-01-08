@@ -284,12 +284,21 @@ public class Ex2Sheet implements Sheet {
             return 0; // Return 0 if not a formula
         }
 
+        // Extract the formula without the "="
+        String formula = data.substring(1).trim();
+
+        // Check for direct self-reference (e.g., A1 references itself as "=A1")
+        if (formula.equals(convertToIndex(x, y))) {
+            System.out.println("Circular reference detected in cell: " + convertToIndex(x, y));
+            return Ex2Utils.ERR_CYCLE_FORM; // Return cycle error
+        }
+
         if (visited[x][y]) {
+            System.out.println("Circular dependency detected for cell: " + convertToIndex(x, y));
             return Ex2Utils.ERR_CYCLE_FORM; // Return cycle error if already visited
         }
 
         visited[x][y] = true; // Mark the cell as visited
-        String formula = data.substring(1).trim(); // Extract the formula
         String[] tokens = formula.split("(?<=[-+*/()])|(?=[-+*/()])"); // Split the formula into tokens
         int maxDepth = 0;
 
@@ -297,7 +306,9 @@ public class Ex2Sheet implements Sheet {
             if (isValidCellAddress(token)) {
                 try {
                     int[] coords = parseAddress(token); // Parse the address
-                    int depDepth = computeDepth(coords[0], coords[1], depths, visited); // Compute the depth
+
+                    // Compute depth for referenced cells
+                    int depDepth = computeDepth(coords[0], coords[1], depths, visited);
                     if (depDepth == Ex2Utils.ERR_CYCLE_FORM) {
                         return Ex2Utils.ERR_CYCLE_FORM; // Return cycle error if detected
                     }
@@ -311,6 +322,8 @@ public class Ex2Sheet implements Sheet {
         visited[x][y] = false; // Unmark the cell as visited
         return maxDepth + 1; // Return the depth
     }
+
+
 
     private boolean isValidCellAddress(String address) {
         try {
