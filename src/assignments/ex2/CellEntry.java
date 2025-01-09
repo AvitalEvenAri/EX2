@@ -13,6 +13,7 @@ public class CellEntry implements Index2D {
         System.out.println("CellEntry created with index: " + this.index); // Debugging
     }
 
+
     @Override
     public boolean isValid() {
         if (index == null || index.length() < 2) {

@@ -86,9 +86,17 @@ public class Ex2Sheet implements Sheet {
         SCell cell = table[x][y]; // Get the cell
         String computedValue = cell.getComputedValue(); // Get the computed value
         String value = computedValue != null ? computedValue : cell.getData(); // Get the value
+
+        // **Ensure numbers are returned as double:**
+        if (isNumber(value) && !value.startsWith("=")) {
+            double number = Double.parseDouble(value); // Convert to double
+            value = String.format("%.2f", number); // Format as double
+        }
+
         System.out.println("value(" + x + ", " + y + ") = " + value);
         return value; // Return the value
     }
+
 
     @Override
     public String eval(int x, int y) {
@@ -100,9 +108,13 @@ public class Ex2Sheet implements Sheet {
         String data = cell.getData(); // Get the data
         System.out.println("Evaluating cell (" + x + ", " + y + ") with data: " + data);
 
+        // If it's not a formula, treat it as a simple value:
         if (data == null || !data.startsWith("=")) {
-            System.out.println("eval(" + x + ", " + y + ") = " + data + " (not a formula)");
-            return data; // Return data if not a formula
+            if (isNumber(data)) {
+                double number = Double.parseDouble(data); // Convert to double
+                return String.format("%.2f", number); // Format as double
+            }
+            return data; // Return data if not a number
         }
 
         try {

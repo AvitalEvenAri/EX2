@@ -14,8 +14,8 @@ public class Ex2SheetTest {
 
         sheet.set(0, 0, "5"); // Set value "5" at cell (0, 0)
         sheet.set(1, 1, "10"); // Set value "10" at cell (1, 1)
-        assertEquals("5", sheet.value(0, 0)); // Check if the value at cell (0, 0) is "5"
-        assertEquals("10", sheet.value(1, 1)); // Check if the value at cell (1, 1) is "10"
+        assertEquals("5.00", sheet.value(0, 0)); // Check if the value at cell (0, 0) is "5"
+        assertEquals("10.00", sheet.value(1, 1)); // Check if the value at cell (1, 1) is "10"
     }
 
     @Test
@@ -167,7 +167,7 @@ public class Ex2SheetTest {
         Ex2Sheet loadedSheet = new Ex2Sheet(5, 5); // Create a new sheet with dimensions 5x5
         loadedSheet.load(fileName); // Load the sheet from the file
 
-        assertEquals("5", loadedSheet.value(0, 0)); // Check if the value at cell (0, 0) is "5"
+        assertEquals("5.00", loadedSheet.value(0, 0)); // Check if the value at cell (0, 0) is "5"
         assertEquals("15.00", loadedSheet.value(1, 1)); // Check if the value at cell (1, 1) is "15.00"
         assertEquals("30.00", loadedSheet.value(2, 2)); // Check if the value at cell (2, 2) is "30.00"
 
