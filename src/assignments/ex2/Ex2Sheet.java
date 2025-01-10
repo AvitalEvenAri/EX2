@@ -230,6 +230,7 @@ public class Ex2Sheet implements Sheet {
             default:
                 throw new IllegalArgumentException(Ex2Utils.ERR_FORM); // Throw error for unsupported operator
         }
+
     }
 
     // Check if the text is a number
