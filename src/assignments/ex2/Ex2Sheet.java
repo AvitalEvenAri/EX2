@@ -225,13 +225,16 @@ public class Ex2Sheet implements Sheet {
             case '*':
                 return a * b;
             case '/':
-                if (b == 0) throw new ArithmeticException(Ex2Utils.ERR_FORM); // Handle division by zero
+                if (b == 0) {
+                    // Handle division by zero: return positive or negative infinity
+                    return a > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
+                }
                 return a / b;
             default:
                 throw new IllegalArgumentException(Ex2Utils.ERR_FORM); // Throw error for unsupported operator
         }
-
     }
+
 
     // Check if the text is a number
     private boolean isNumber(String text) {
@@ -424,4 +427,4 @@ public class Ex2Sheet implements Sheet {
             }
         }
     }
-    }
+}
