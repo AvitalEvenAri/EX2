@@ -36,14 +36,7 @@ public class SCell implements Cell {
 
     @Override
     public String toString() {
-        // If there is a CellEntry, create the address based on x and y
-        if (cellEntry != null) {
-            // Assume cellEntry contains the address in the form of x, y
-            int x = cellEntry.getX(); // Get the row
-            int y = cellEntry.getY(); // Get the column
-            return Ex2Utils.ABC[y] + x;  // Combine column and row
-        }
-        // If there is no CellEntry, display the data in the cell
+        // Returns only the cell's data to avoid duplicate cell address display in GUI
         return getData();
     }
 
