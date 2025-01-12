@@ -2,6 +2,12 @@ package assignments.ex2;
 
 public class CellEntry implements Index2D {
     private String index; // Cell address (e.g., "B3")
+    private int x;
+    private int y;
+    public CellEntry(int x,int y){
+        this.x=x;
+        this.y=y;
+    }
 
     // Constructor for CellEntry
     public CellEntry(String index) {

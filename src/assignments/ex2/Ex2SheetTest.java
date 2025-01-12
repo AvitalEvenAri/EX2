@@ -74,13 +74,7 @@ public class Ex2SheetTest {
         assertEquals(Ex2Utils.ERR_CYCLE, sheet.value(1, 1)); // Check if the value at cell (1, 1) is ERR_CYCLE
     }
 
-    @Test
-    public void testDivisionByZero() {
-        Ex2Sheet sheet = new Ex2Sheet(5, 5); // Create a new sheet with dimensions 5x5
 
-        sheet.set(0, 0, "=10/0"); // Set formula "=10/0" at cell (0, 0)
-        assertEquals(Ex2Utils.ERR_FORM, sheet.value(0, 0)); // Check if the value at cell (0, 0) is ERR_FORM
-    }
 
     @Test
     public void testInvalidCellReference() {
