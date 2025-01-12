@@ -9,3 +9,4 @@ This project is a **Java-based spreadsheet implementation** designed for the I2C
 - **Persistence:** Save and load the spreadsheet's state for continued work.
 
 This system provides a robust foundation for creating and managing structured data efficiently while maintaining a simple and user-friendly interface.
+![Project Screenshot](photo.png)
