@@ -246,7 +246,7 @@ public class Ex2Sheet implements Sheet {
         }
     }
 
-    // Evaluate the entire sheet
+    @Override
     public void eval() {
         System.out.println("Evaluating entire sheet...");
         int[][] depths = depth(); // Get the depths of all cells
@@ -254,27 +254,46 @@ public class Ex2Sheet implements Sheet {
         for (int d = 0; d <= getMaxDepth(depths); d++) {
             for (int i = 0; i < width(); i++) {
                 for (int j = 0; j < height(); j++) {
+                    SCell cell = table[i][j];
+                    String data = cell.getData();
+
                     if (depths[i][j] == d) {
-                        SCell cell = table[i][j];
-                        String data = cell.getData();
                         if (data != null && data.startsWith("=")) {
                             try {
                                 String value = eval(i, j); // Evaluate the cell
                                 cell.setComputedValue(value); // Set the computed value
+
+                                // Check if the evaluation resulted in an error
+                                if (value.equals(Ex2Utils.ERR_FORM)) {
+                                    cell.setType(Ex2Utils.ERR_FORM_FORMAT);
+                                    System.out.println("Formula error at (" + i + ", " + j + "), type set to ERR_FORM_FORMAT");
+                                } else {
+                                    cell.setType(Ex2Utils.FORM); // Set type to FORM only for valid formulas
+                                }
                             } catch (Exception e) {
-                                cell.setComputedValue(Ex2Utils.ERR_FORM); // Set error if evaluation fails
+                                cell.setComputedValue(Ex2Utils.ERR_FORM); // Set error value
+                                cell.setType(Ex2Utils.ERR_FORM_FORMAT); // Ensure type is ERR_FORM_FORMAT
+                                System.out.println("Invalid formula at (" + i + ", " + j + "), type set to ERR_FORM_FORMAT");
                             }
                         } else {
-                            cell.setComputedValue(data); // Set the data as the computed value
+                            if (isNumber(data)) {
+                                cell.setComputedValue(data); // Treat as a number
+                                cell.setType(Ex2Utils.NUMBER); // Set type to NUMBER
+                            } else {
+                                cell.setComputedValue(data); // Treat as plain text
+                                cell.setType(Ex2Utils.TEXT); // Set type to TEXT
+                            }
                         }
                     } else if (depths[i][j] == Ex2Utils.ERR_CYCLE_FORM) {
-                        table[i][j].setComputedValue(Ex2Utils.ERR_CYCLE); // Set cycle error
+                        cell.setComputedValue(Ex2Utils.ERR_CYCLE); // Set cycle error
+                        cell.setType(Ex2Utils.ERR_CYCLE_FORM); // Set type to ERR_CYCLE_FORM
                     }
                 }
             }
         }
         System.out.println("Sheet evaluation complete.");
     }
+
     @Override
     public int[][] depth() {
         int[][] depths = new int[width()][height()]; // Initialize the depths array
