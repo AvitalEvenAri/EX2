@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class Ex2Sheet implements Sheet {
     private SCell[][] table; // 2D array to store cells
 
