@@ -38,6 +38,7 @@ public class Ex2Sheet implements Sheet {
         return table.length; // Return the width of the sheet
     }
 
+
     @Override
     public int height() {
         return table[0].length; // Return the height of the sheet
