@@ -10,6 +10,7 @@ public class Ex2Sheet implements Sheet {
     private SCell[][] table; // 2D array to store cells
 
     // Constructor with dimensions
+
     public Ex2Sheet(int x, int y) {
         table = new SCell[x][y]; // Initialize the 2D array of cells
         for (int i = 0; i < x; i++) {
